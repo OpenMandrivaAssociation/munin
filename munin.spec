@@ -1,6 +1,6 @@
 Name:      munin
 Version:   1.2.5
-Release:   %mkrel 5
+Release:   %mkrel 6
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPL
 Group:     Monitoring
@@ -80,7 +80,7 @@ RRDtool.
 	DOCDIR={_docdir}/%{name}-%{version} \
 	MANDIR=%{_mandir} \
     HTMLDIR=%_var/www/%name \
-    CGIDIR=%_var/www/%name/cgi \
+    CGIDIR=%_var/www/cgi-bin \
 	CONFIG=dists/redhat/Makefile.config build 
 
 %install
@@ -90,7 +90,7 @@ make 	CONFIG=dists/redhat/Makefile.config \
 	DOCDIR=%{buildroot}%{_docdir}/%{name}-%{version} \
 	MANDIR=%{buildroot}%{_mandir} \
     HTMLDIR=%{buildroot}/%_var/www/%name \
-    CGIDIR=%{buildroot}/%_var/www/%name/cgi \
+    CGIDIR=%{buildroot}/%_var/www/cgi-bin \
 	DESTDIR=%{buildroot} \
     	install-main install-node install-node-plugins install-doc install-man
 
@@ -119,7 +119,7 @@ rm -f %{buildroot}/usr/share/munin/plugins/sybase_space
 ## Server
 make 	CONFIG=dists/redhat/Makefile.config \
     HTMLDIR=%{buildroot}/%_var/www/%name \
-    CGIDIR=%{buildroot}/%_var/www/%name/cgi \
+    CGIDIR=%{buildroot}/%_var/www/cgi-bin \
 	DESTDIR=%{buildroot} \
 	install-main
 
@@ -131,6 +131,7 @@ mkdir -p %{buildroot}%_webappconfdir
 cat > %{buildroot}%_webappconfdir/%name.conf <<EOF
 Alias /munin /var/www/munin
 <Directory /var/www/munin>
+    Order deny,allow
     Allow from 127.0.0.1
 </Directory>
 
@@ -189,7 +190,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/munin/munin-update
 %{_datadir}/munin/VeraMono.ttf
 %{perl_vendorlib}/Munin.pm
-/var/www/munin/cgi/munin-cgi-graph
+/var/www/cgi-bin/munin-cgi-graph
 %dir /etc/munin/templates
 %dir /etc/munin
 %_webappconfdir/%name.conf
@@ -202,7 +203,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(-, munin, munin) %dir /var/run/munin
 %attr(-, munin, munin) %dir /var/log/munin
 %attr(-, munin, munin) %dir /var/www/munin
-%attr(-, root, root) %dir /var/www/munin/cgi
 %attr(-, root, root) /var/www/munin/style.css
 %doc %{_mandir}/man8/munin-graph*
 %doc %{_mandir}/man8/munin-update*
