@@ -221,10 +221,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(-, munin, munin) %dir /var/lib/munin
 %attr(-, munin, munin) %dir /var/run/munin
 %attr(-, munin, munin) %dir /var/log/munin
-%attr(-, munin, munin) %dir /var/www/munin
-%attr(-, munin, munin) /var/www/munin/.htaccess
-%attr(-, munin, munin) /var/www/munin/favicon.ico
-%attr(-, root, root) /var/www/munin/style.css
+%attr(-, munin, munin) /var/www/munin
 %doc %{_mandir}/man8/munin-graph*
 %doc %{_mandir}/man8/munin-update*
 %doc %{_mandir}/man8/munin-limits*
