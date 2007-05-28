@@ -1,6 +1,6 @@
 Name:      munin
 Version:   1.3.3
-Release:   %mkrel 2
+Release:   %mkrel 3
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPL
 Group:     Monitoring
@@ -16,6 +16,7 @@ Source4: munin.logrotate
 Source5: munin-node.init
 Patch1: munin-1.2.4-conf.patch
 Patch2: munin-nocheck-user.patch
+Patch3: munin-plugins-variousfix.patch
 BuildArch: noarch
 Requires: rrdtool
 Requires: logrotate
@@ -73,7 +74,8 @@ RRDtool.
 %prep
 %setup -q
 %patch1 -p1
-%patch2 -p0
+%patch2 -p0 -b .nochown
+%patch3 -p0 -b .pluginsfix
 
 %build
 
