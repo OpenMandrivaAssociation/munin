@@ -207,7 +207,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/munin/munin-update
 %{_datadir}/munin/VeraMono.ttf
 %{perl_vendorlib}/Munin.pm
-%{perl_vendorlib}/Munin
 /var/www/cgi-bin/munin-cgi-graph
 %dir /etc/munin/templates
 %dir /etc/munin
@@ -245,6 +244,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_sbindir}/munin-node
 %{_sbindir}/munin-node-configure
 %{_sbindir}/munin-node-configure-snmp
+%{perl_vendorlib}/Munin
 %attr(-, munin, munin) %dir /var/log/munin
 %dir %{_datadir}/munin
 %dir /etc/munin/plugins
