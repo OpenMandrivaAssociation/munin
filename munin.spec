@@ -1,6 +1,6 @@
 Name:      munin
-Version:   1.2.5
-Release:   %mkrel 6
+Version:   1.3.3
+Release:   %mkrel 1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPL
 Group:     Monitoring
@@ -14,8 +14,8 @@ Source2: munin-1.2.5-hddtemp_smartctl-config
 Source3: munin-node.logrotate
 Source4: munin.logrotate
 Source5: munin-node.init
-Patch0: munin-1.2.4-cron.patch
 Patch1: munin-1.2.4-conf.patch
+Patch2: munin-nocheck-user.patch
 BuildArch: noarch
 Requires: rrdtool
 Requires: logrotate
@@ -71,8 +71,8 @@ RRDtool.
 
 %prep
 %setup -q
-%patch0 -p1
 %patch1 -p1
+%patch2 -p0
 
 %build
 
@@ -81,16 +81,28 @@ RRDtool.
 	MANDIR=%{_mandir} \
     HTMLDIR=%_var/www/%name \
     CGIDIR=%_var/www/cgi-bin \
+    PREFIX=%_prefix \
+    CONFDIR=%_sysconfdir/munin \
+    DBDIR=%_localstatedir/munin \
+    LIBDIR=%_datadir/munin \
+    PERLLIB=%perl_vendorlib \
 	CONFIG=dists/redhat/Makefile.config build 
 
 %install
 
 ## Node
 make 	CONFIG=dists/redhat/Makefile.config \
+    CHOWN=/bin/true \
+    CHGRP=/bin/true \
 	DOCDIR=%{buildroot}%{_docdir}/%{name}-%{version} \
 	MANDIR=%{buildroot}%{_mandir} \
     HTMLDIR=%{buildroot}/%_var/www/%name \
     CGIDIR=%{buildroot}/%_var/www/cgi-bin \
+    PREFIX=%{buildroot}%_prefix \
+    LIBDIR=%{buildroot}%_datadir/munin \
+    CONFDIR=%{buildroot}%_sysconfdir/munin \
+    DBDIR=%{buildroot}%_localstatedir/munin \
+    PERLLIB=%{buildroot}%perl_vendorlib \
 	DESTDIR=%{buildroot} \
     	install-main install-node install-node-plugins install-doc install-man
 
@@ -118,9 +130,16 @@ rm -f %{buildroot}/usr/share/munin/plugins/sybase_space
 
 ## Server
 make 	CONFIG=dists/redhat/Makefile.config \
+    CHOWN=/bin/true \
+    CHGRP=/bin/true \
     HTMLDIR=%{buildroot}/%_var/www/%name \
     CGIDIR=%{buildroot}/%_var/www/cgi-bin \
 	DESTDIR=%{buildroot} \
+    PREFIX=%{buildroot}%_prefix \
+    LIBDIR=%{buildroot}%_datadir/munin \
+    CONFDIR=%{buildroot}%_sysconfdir/munin \
+    DBDIR=%{buildroot}%_localstatedir/munin \
+    PERLLIB=%{buildroot}%perl_vendorlib \
 	install-main
 
 mkdir -p %{buildroot}/var/www/munin
@@ -149,6 +168,7 @@ install -m 0644 %{SOURCE3} %{buildroot}/etc/logrotate.d/munin-node
 install -m 0644 %{SOURCE4} %{buildroot}/etc/logrotate.d/munin
 
 %clean
+chmod u+rX -R $RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_ROOT
 
 %pre node
@@ -178,11 +198,7 @@ rm -rf $RPM_BUILD_ROOT
  
 %files
 %defattr(-, root, root)
-%doc %{_docdir}/%{name}-%{version}/README.api
-%doc %{_docdir}/%{name}-%{version}/README.plugins
-%doc %{_docdir}/%{name}-%{version}/COPYING
-%doc %{_docdir}/%{name}-%{version}/ChangeLog
-%doc %{_docdir}/%{name}-%{version}/README-apache-cgi
+%doc %_docdir/*
 %{_bindir}/munin-cron
 %{_datadir}/munin/munin-graph
 %{_datadir}/munin/munin-html
@@ -190,6 +206,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/munin/munin-update
 %{_datadir}/munin/VeraMono.ttf
 %{perl_vendorlib}/Munin.pm
+%{perl_vendorlib}/Munin
 /var/www/cgi-bin/munin-cgi-graph
 %dir /etc/munin/templates
 %dir /etc/munin
@@ -203,6 +220,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(-, munin, munin) %dir /var/run/munin
 %attr(-, munin, munin) %dir /var/log/munin
 %attr(-, munin, munin) %dir /var/www/munin
+%attr(-, munin, munin) /var/www/munin/.htaccess
+%attr(-, munin, munin) /var/www/munin/favicon.ico
 %attr(-, root, root) /var/www/munin/style.css
 %doc %{_mandir}/man8/munin-graph*
 %doc %{_mandir}/man8/munin-update*
@@ -213,6 +232,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files node
 %defattr(-, root, root)
+%doc %_docdir/*
 %config(noreplace) /etc/munin/munin-node.conf
 %config(noreplace) /etc/munin/plugin-conf.d/munin-node
 %config(noreplace) /etc/munin/plugin-conf.d/sendmail
@@ -231,9 +251,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(-, munin, munin) %dir /var/lib/munin
 %dir %attr(-, munin, munin) /var/lib/munin/plugin-state
 %{_datadir}/munin/plugins/*
-%doc %{_docdir}/%{name}-%{version}/COPYING
-%doc %{_docdir}/%{name}-%{version}/munin-doc.*
-%doc %{_docdir}/%{name}-%{version}/munin-faq.*
 %doc %{_mandir}/man8/munin-run*
 %doc %{_mandir}/man8/munin-node*
 %doc %{_mandir}/man5/munin-node*
