@@ -172,6 +172,11 @@ install -m 0644 %{SOURCE2} %{buildroot}/etc/munin/plugin-conf.d/hddtemp_smartctl
 install -m 0644 %{SOURCE3} %{buildroot}/etc/logrotate.d/munin-node
 install -m 0644 %{SOURCE4} %{buildroot}/etc/logrotate.d/munin
 
+cat >%{buildroot}/etc/munin/plugin-conf.d/fw <<EOF
+[fw*]
+    user root
+EOF
+
 %clean
 chmod u+rX -R $RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_ROOT
@@ -235,9 +240,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %doc %_docdir/*
 %config(noreplace) /etc/munin/munin-node.conf
-%config(noreplace) /etc/munin/plugin-conf.d/munin-node
-%config(noreplace) /etc/munin/plugin-conf.d/sendmail
-%config(noreplace) /etc/munin/plugin-conf.d/hddtemp_smartctl
+%config(noreplace) /etc/munin/plugin-conf.d
 %config(noreplace) /etc/logrotate.d/munin-node
 %config(noreplace) %_initrddir/%name-node
 %config(noreplace) /etc/munin/plugins.conf
