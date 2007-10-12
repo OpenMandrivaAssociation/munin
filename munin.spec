@@ -216,19 +216,18 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/munin/munin-update
 %{_datadir}/munin/VeraMono.ttf
 %{perl_vendorlib}/Munin.pm
+%dir %{_sysconfdir}/munin
+%dir %{_sysconfdir}/munin/templates
+%config(noreplace) %{_webappconfdir}/%{name}.conf
+%config(noreplace) %{_sysconfdir}/munin/templates/*
+%config(noreplace) %{_sysconfdir}/cron.d/munin
+%config(noreplace) %{_sysconfdir}/munin/munin.conf
+%config(noreplace) %{_sysconfdir}/logrotate.d/munin
 /var/www/cgi-bin/munin-cgi-graph
-%dir /etc/munin/templates
-%dir /etc/munin
-%_webappconfdir/%name.conf
-%config(noreplace) /etc/munin/templates/*
-%config(noreplace) /etc/cron.d/munin
-%config(noreplace) /etc/munin/munin.conf
-%config(noreplace) /etc/logrotate.d/munin
-
+%attr(-, munin, munin) /var/www/munin
 %attr(-, munin, munin) %dir /var/lib/munin
 %attr(-, munin, munin) %dir /var/run/munin
 %attr(-, munin, munin) %dir /var/log/munin
-%attr(-, munin, munin) /var/www/munin
 %{_mandir}/man8/munin-graph*
 %{_mandir}/man8/munin-update*
 %{_mandir}/man8/munin-limits*
@@ -239,22 +238,22 @@ rm -rf $RPM_BUILD_ROOT
 %files node
 %defattr(-, root, root)
 %doc %_docdir/*
-%config(noreplace) /etc/munin/munin-node.conf
-%config(noreplace) /etc/munin/plugin-conf.d
-%config(noreplace) /etc/logrotate.d/munin-node
-%config(noreplace) %_initrddir/%name-node
-%config(noreplace) /etc/munin/plugins.conf
+%dir %{_sysconfdir}/munin
+%dir %{_sysconfdir}/munin/plugins
+%config(noreplace) %{_sysconfdir}/munin/munin-node.conf
+%config(noreplace) %{_sysconfdir}/munin/plugin-conf.d
+%config(noreplace) %{_sysconfdir}/munin/plugins.conf
+%config(noreplace) %{_sysconfdir}/logrotate.d/munin-node
+%_initrddir/%name-node
 %{_sbindir}/munin-run
 %{_sbindir}/munin-node
 %{_sbindir}/munin-node-configure
 %{_sbindir}/munin-node-configure-snmp
 %{perl_vendorlib}/Munin
-%attr(-, munin, munin) %dir /var/log/munin
+%attr(-,munin,munin) %dir /var/log/munin
+%attr(-,munin,munin) %dir /var/lib/munin
+%dir %attr(-,munin,munin) /var/lib/munin/plugin-state
 %dir %{_datadir}/munin
-%dir /etc/munin/plugins
-%dir /etc/munin
-%attr(-, munin, munin) %dir /var/lib/munin
-%dir %attr(-, munin, munin) /var/lib/munin/plugin-state
 %{_datadir}/munin/plugins
 %{_mandir}/man8/munin-run*
 %{_mandir}/man8/munin-node*
