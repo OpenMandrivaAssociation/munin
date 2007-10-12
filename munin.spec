@@ -255,9 +255,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir /etc/munin
 %attr(-, munin, munin) %dir /var/lib/munin
 %dir %attr(-, munin, munin) /var/lib/munin/plugin-state
-%{_datadir}/munin/plugins/*
+%{_datadir}/munin/plugins
 %doc %{_mandir}/man8/munin-run*
 %doc %{_mandir}/man8/munin-node*
 %doc %{_mandir}/man5/munin-node*
-
-
