@@ -1,6 +1,6 @@
 Name:      munin
 Version:   1.3.3
-Release:   %mkrel 3
+Release:   %mkrel 4
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPL
 Group:     Monitoring
@@ -229,12 +229,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(-, munin, munin) %dir /var/run/munin
 %attr(-, munin, munin) %dir /var/log/munin
 %attr(-, munin, munin) /var/www/munin
-%doc %{_mandir}/man8/munin-graph*
-%doc %{_mandir}/man8/munin-update*
-%doc %{_mandir}/man8/munin-limits*
-%doc %{_mandir}/man8/munin-html*
-%doc %{_mandir}/man8/munin-cron*
-%doc %{_mandir}/man5/munin.conf*
+%{_mandir}/man8/munin-graph*
+%{_mandir}/man8/munin-update*
+%{_mandir}/man8/munin-limits*
+%{_mandir}/man8/munin-html*
+%{_mandir}/man8/munin-cron*
+%{_mandir}/man5/munin.conf*
 
 %files node
 %defattr(-, root, root)
@@ -256,6 +256,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(-, munin, munin) %dir /var/lib/munin
 %dir %attr(-, munin, munin) /var/lib/munin/plugin-state
 %{_datadir}/munin/plugins
-%doc %{_mandir}/man8/munin-run*
-%doc %{_mandir}/man8/munin-node*
-%doc %{_mandir}/man5/munin-node*
+%{_mandir}/man8/munin-run*
+%{_mandir}/man8/munin-node*
+%{_mandir}/man5/munin-node*
