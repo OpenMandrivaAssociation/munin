@@ -6,6 +6,7 @@ License:   GPL
 Group:     Monitoring
 URL:       http://munin.projects.linpro.no/
 
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 Source0: http://download.sourceforge.net/sourceforge/munin/%{name}_%{version}.tar.gz
 Source1: munin-1.2.4-sendmail-config
