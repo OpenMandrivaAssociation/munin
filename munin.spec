@@ -88,7 +88,7 @@ RRDtool.
     CGIDIR=%_var/www/cgi-bin \
     PREFIX=%_prefix \
     CONFDIR=%_sysconfdir/munin \
-    DBDIR=%_localstatedir/munin \
+    DBDIR=%_localstatedir/lib/munin \
     LIBDIR=%_datadir/munin \
     PERLLIB=%perl_vendorlib \
 	CONFIG=dists/redhat/Makefile.config build 
@@ -106,7 +106,7 @@ make 	CONFIG=dists/redhat/Makefile.config \
     PREFIX=%{buildroot}%_prefix \
     LIBDIR=%{buildroot}%_datadir/munin \
     CONFDIR=%{buildroot}%_sysconfdir/munin \
-    DBDIR=%{buildroot}%_localstatedir/munin \
+    DBDIR=%{buildroot}%_localstatedir/lib/munin \
     PERLLIB=%{buildroot}%perl_vendorlib \
 	DESTDIR=%{buildroot} \
     	install-main install-node install-node-plugins install-doc install-man
@@ -143,7 +143,7 @@ make 	CONFIG=dists/redhat/Makefile.config \
     PREFIX=%{buildroot}%_prefix \
     LIBDIR=%{buildroot}%_datadir/munin \
     CONFDIR=%{buildroot}%_sysconfdir/munin \
-    DBDIR=%{buildroot}%_localstatedir/munin \
+    DBDIR=%{buildroot}%_localstatedir/lib/munin \
     PERLLIB=%{buildroot}%perl_vendorlib \
 	install-main
 
