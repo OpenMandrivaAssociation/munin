@@ -1,6 +1,6 @@
 Name:      munin
-Version:   1.3.3
-Release:   %mkrel 4
+Version:   1.3.4
+Release:   %mkrel 1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPL
 Group:     Monitoring
@@ -76,8 +76,6 @@ RRDtool.
 %setup -q
 %patch1 -p1
 %patch2 -p0 -b .nochown
-%patch3 -p0 -b .pluginsfix
-%patch4 -p0 -b .cgi-lock
 
 %build
 
@@ -214,6 +212,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/munin/munin-html
 %{_datadir}/munin/munin-limits
 %{_datadir}/munin/munin-update
+%{_bindir}/munin-check
+%{_bindir}/munindoc
 %{_datadir}/munin/VeraMono.ttf
 %{perl_vendorlib}/Munin.pm
 %dir %{_sysconfdir}/munin
