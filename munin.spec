@@ -19,6 +19,7 @@ Patch1: munin-1.2.4-conf.patch
 Patch2: munin-nocheck-user.patch
 Patch3: munin-plugins-variousfix.patch
 Patch4: munin-cgi-graph-fix-lock.patch
+Patch5: munin-cmpop.patch
 BuildArch: noarch
 Requires: rrdtool
 Requires: logrotate
@@ -77,6 +78,7 @@ RRDtool.
 %setup -q
 %patch1 -p1
 %patch2 -p0 -b .nochown
+%patch5 -p0 -b .cmpop
 
 %build
 
