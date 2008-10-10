@@ -1,6 +1,6 @@
 Name:      munin
 Version:   1.3.4
-Release:   %mkrel 3
+Release:   %mkrel 4
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPL
 Group:     Monitoring
@@ -89,7 +89,7 @@ RRDtool.
     CGIDIR=%_var/www/cgi-bin \
     PREFIX=%_prefix \
     CONFDIR=%_sysconfdir/munin \
-    DBDIR=%_localstatedir/lib/munin \
+    DBDIR=%_var/lib/munin \
     LIBDIR=%_datadir/munin \
     PERLLIB=%perl_vendorlib \
 	CONFIG=dists/redhat/Makefile.config build 
@@ -107,7 +107,7 @@ make 	CONFIG=dists/redhat/Makefile.config \
     PREFIX=%{buildroot}%_prefix \
     LIBDIR=%{buildroot}%_datadir/munin \
     CONFDIR=%{buildroot}%_sysconfdir/munin \
-    DBDIR=%{buildroot}%_localstatedir/lib/munin \
+    DBDIR=%{buildroot}%_var/lib/munin \
     PERLLIB=%{buildroot}%perl_vendorlib \
 	DESTDIR=%{buildroot} \
     	install-main install-node install-node-plugins install-doc install-man
@@ -144,7 +144,7 @@ make 	CONFIG=dists/redhat/Makefile.config \
     PREFIX=%{buildroot}%_prefix \
     LIBDIR=%{buildroot}%_datadir/munin \
     CONFDIR=%{buildroot}%_sysconfdir/munin \
-    DBDIR=%{buildroot}%_localstatedir/lib/munin \
+    DBDIR=%{buildroot}%_var/lib/munin \
     PERLLIB=%{buildroot}%perl_vendorlib \
 	install-main
 
@@ -258,9 +258,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_sbindir}/munin-node-configure
 %{_sbindir}/munin-node-configure-snmp
 %{perl_vendorlib}/Munin
-%attr(-,munin,munin) %dir /var/log/munin
-%attr(-,munin,munin) %dir /var/lib/munin
-%dir %attr(-,munin,munin) /var/lib/munin/plugin-state
+%attr(-,munin,munin) %dir %_var/log/munin
+%attr(-,munin,munin) %dir %_var/lib/munin
+%dir %attr(-,munin,munin) %_var/lib/munin/plugin-state
 %dir %{_datadir}/munin
 %{_datadir}/munin/plugins
 %{_mandir}/man8/munin-run*
