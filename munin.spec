@@ -1,6 +1,6 @@
 Name:      munin
 Version:   1.3.4
-Release:   %mkrel 5
+Release:   %mkrel 6
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPL
 Group:     Monitoring
@@ -24,6 +24,7 @@ Patch6: 380-munin-graph-utf8.patch
 BuildArch: noarch
 Requires: rrdtool
 Requires: logrotate
+Requires: fonts-ttf-dejavu
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
 Requires(post): rpm-helper
