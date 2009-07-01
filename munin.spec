@@ -97,6 +97,7 @@ RRDtool.
 	CONFIG=dists/redhat/Makefile.config build 
 
 %install
+rm -f %{buildroot}
 
 ## Node
 make 	CONFIG=dists/redhat/Makefile.config \
@@ -113,6 +114,9 @@ make 	CONFIG=dists/redhat/Makefile.config \
     PERLLIB=%{buildroot}%perl_vendorlib \
 	DESTDIR=%{buildroot} \
     	install-main install-node install-node-plugins install-doc install-man
+
+install -m 644 build/node/SNMP.pm \
+    %{buildroot}%perl_vendorlib/Munin/Plugin/SNMP.pm
 
 mkdir -p %{buildroot}/%_initrddir
 mkdir -p %{buildroot}/etc/munin/plugins
