@@ -14,7 +14,6 @@ Source2: munin-1.2.5-hddtemp_smartctl-config
 Source3: munin-node.logrotate
 Source4: munin.logrotate
 Source5: munin-node.init
-Source6: munin-node.bash-completion
 Patch1: munin-1.2.4-conf.patch
 Patch2: munin-nocheck-user.patch
 Patch3: munin-plugins-variousfix.patch
@@ -181,10 +180,6 @@ cat >%{buildroot}/etc/munin/plugin-conf.d/fw <<EOF
     user root
 EOF
 
-# bash completion
-install -d -m 755 %{buildroot}%{_sysconfdir}/bash_completion.d
-install -m 644 %{SOURCE6} %{buildroot}%{_sysconfdir}/bash_completion.d/munin-node
-
 %clean
 chmod u+rX -R $RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_ROOT
@@ -254,7 +249,6 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{_sysconfdir}/munin/plugin-conf.d
 %config(noreplace) %{_sysconfdir}/munin/plugins.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/munin-node
-%{_sysconfdir}/bash_completion.d/munin-node
 %_initrddir/%name-node
 %{_sbindir}/munin-run
 %{_sbindir}/munin-node
