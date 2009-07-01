@@ -1,6 +1,6 @@
 Name:      munin
 Version:   1.3.4
-Release:   %mkrel 6
+Release:   %mkrel 7
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPL
 Group:     Monitoring
