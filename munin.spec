@@ -1,36 +1,41 @@
+%define beta alpha
+%define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\))
+
 Name:      munin
-Version:   1.3.4
-Release:   %mkrel 8
+Version:   1.4.0
+Release:   %mkrel 0.%{beta}.1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
 URL:       http://munin.projects.linpro.no/
-
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-
-Source0: http://download.sourceforge.net/sourceforge/munin/%{name}_%{version}.tar.gz
-Source1: munin-1.2.4-sendmail-config
-Source2: munin-1.2.5-hddtemp_smartctl-config
+Source0: http://download.sourceforge.net/sourceforge/munin/%{name}_%{version}-%{beta}.tar.gz
 Source3: munin-node.logrotate
 Source4: munin.logrotate
 Source5: munin-node.init
-Patch1: munin-1.2.4-conf.patch
 Patch2: munin-nocheck-user.patch
 Patch3: munin-plugins-variousfix.patch
 Patch4: munin-cgi-graph-fix-lock.patch
 Patch5: munin-cmpop.patch
 Patch6: 380-munin-graph-utf8.patch
+BuildRequires: html2text
+BuildRequires: htmldoc
+BuildRequires: java-devel
 BuildArch: noarch
-Requires: rrdtool
-Requires: logrotate
-Requires: fonts-ttf-dejavu
-Requires(pre): rpm-helper
-Requires(postun): rpm-helper
-Requires(post): rpm-helper
-Requires(preun): rpm-helper
-BuildRequires: html2text htmldoc
+BuildRoot: %{_tmppath}/%{name}-%{version}
 
 %description
+Munin is a highly flexible and powerful solution used to create graphs of
+virtually everything imaginable throughout your network, while still
+maintaining a rattling ease of installation and configuration.
+
+%package master
+Group: Monitoring
+Summary: Network-wide graphing framework (master)
+Requires: rrdtool
+Requires: %{name} = %{version}-%{release}
+Obsoletes: %{name} < 1.4.0
+
+%description master
 Munin is a highly flexible and powerful solution used to create graphs of
 virtually everything imaginable throughout your network, while still
 maintaining a rattling ease of installation and configuration.
@@ -40,14 +45,12 @@ it in your network. It will periodically poll all the nodes in your network
 it's aware of for data, which it in turn will use to create graphs and HTML
 pages, suitable for viewing with your graphical web browser of choice.
 
-Munin is written in Perl, and relies heavily on Tobi Oetiker's excellent
-RRDtool. 
-
 %package node
 Group: Monitoring
 Summary: Network-wide graphing framework (node)
 Requires: procps >= 2.0.7
 Requires: sysstat
+Requires: %{name} = %{version}-%{release}
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
 Requires(post): rpm-helper
@@ -72,198 +75,194 @@ relay information from other devices in your network that can't run Munin,
 such as a switch or a server running another operating system, by using
 SNMP or similar technology.
 
-Munin is written in Perl, and relies heavily on Tobi Oetiker's excellent
-RRDtool. 
-
 %prep
-%setup -q
-%patch1 -p0
-%patch2 -p0 -b .nochown
-%patch5 -p0 -b .cmpop
-%patch6 -p0 -b .utf8
+%setup -q -n %{name}-%{version}-%{beta}
+#%patch2 -p0 -b .nochown
+#%patch5 -p0 -b .cmpop
+#%patch6 -p0 -b .utf8
 
 %build
-
-%make \
-	DOCDIR={_docdir}/%{name}-%{version} \
-	MANDIR=%{_mandir} \
-    HTMLDIR=%_var/www/%name \
-    CGIDIR=%_var/www/cgi-bin \
-    PREFIX=%_prefix \
-    CONFDIR=%_sysconfdir/munin \
-    DBDIR=%_var/lib/munin \
-    LIBDIR=%_datadir/munin \
-    PERLLIB=%perl_vendorlib \
-	CONFIG=dists/redhat/Makefile.config build 
+make \
+    CONFIG=dists/redhat/Makefile.config \
+    PREFIX=%{_prefix} \
+    DOCDIR={_docdir}/%{name} \
+    MANDIR=%{_mandir} \
+    HTMLDIR=%{_localstatedir}/lib/munin/html \
+    DBDIR=%{_localstatedir}/lib/munin/data \
+    PLUGSTATE=%{_localstatedir}/lib/munin/plugin-state \
+    CGIDIR=%{_datadir}/%{name}/cgi \
+    CONFDIR=%{_sysconfdir}/munin \
+    LIBDIR=%{_datadir}/munin \
+    PERLLIB=%{perl_vendorlib} \
+    HOSTNAME=localhost \
+    build
 
 %install
-rm -f %{buildroot}
+rm -rf %{buildroot}
 
 ## Node
-make 	CONFIG=dists/redhat/Makefile.config \
+make \
+    CONFIG=dists/redhat/Makefile.config \
     CHOWN=/bin/true \
     CHGRP=/bin/true \
-	DOCDIR=%{buildroot}%{_docdir}/%{name}-%{version} \
-	MANDIR=%{buildroot}%{_mandir} \
-    HTMLDIR=%{buildroot}/%_var/www/%name \
-    CGIDIR=%{buildroot}/%_var/www/cgi-bin \
-    PREFIX=%{buildroot}%_prefix \
-    LIBDIR=%{buildroot}%_datadir/munin \
-    CONFDIR=%{buildroot}%_sysconfdir/munin \
-    DBDIR=%{buildroot}%_var/lib/munin \
-    PERLLIB=%{buildroot}%perl_vendorlib \
-	DESTDIR=%{buildroot} \
-    	install-main install-node install-node-plugins install-doc install-man
+    DOCDIR=%{buildroot}%{_docdir}/%{name} \
+    MANDIR=%{buildroot}%{_mandir} \
+    HTMLDIR=%{buildroot}%{_localstatedir}/lib/munin/html \
+    DBDIR=%{buildroot}%{_localstatedir}/lib/munin/data \
+    PLUGSTATE=%{buildroot}%{_localstatedir}/lib/munin/plugin-state \
+    CGIDIR=%{buildroot}%{_datadir}/%{name}/cgi \
+    PREFIX=%{buildroot}%{_prefix} \
+    LIBDIR=%{buildroot}%{_datadir}/munin \
+    CONFDIR=%{buildroot}%{_sysconfdir}/munin \
+    PERLLIB=%{buildroot}%{perl_vendorlib} \
+    DESTDIR=%{buildroot} \
+    HOSTNAME=localhost \
+    install install-doc
 
-install -m 644 build/node/SNMP.pm \
-    %{buildroot}%perl_vendorlib/Munin/Plugin/SNMP.pm
+# fix munindoc installation
+rm -f %{buildroot}%{_bindir}/munindoc.in
+mv %{buildroot}%{_mandir}/man1/munindoc.in.1 \
+    %{buildroot}%{_mandir}/man1/munindoc.1
 
-mkdir -p %{buildroot}/%_initrddir
-mkdir -p %{buildroot}/etc/munin/plugins
-mkdir -p %{buildroot}/etc/munin/plugin-conf.d
-mkdir -p %{buildroot}/etc/logrotate.d
-mkdir -p %{buildroot}/var/lib/munin
-mkdir -p %{buildroot}/var/log/munin
+# init script
+install -d -m 755 %{buildroot}%{_initrddir}
+install -m 755 %{SOURCE5} %{buildroot}/%{_initrddir}/munin-node
 
-# 
-# don't enable munin-node by default. 
-#
-cp %{SOURCE5}  %{buildroot}/%_initrddir/%{name}-node
-#chmod 755 %{buildroot}/etc/rc.d/init.d/munin-node
+# plugins configuration
+install -d -m 755 %{buildroot}%{_sysconfdir}/munin/plugin-conf.d
+install -m 644 dists/tarball/plugins.conf \
+    %{buildroot}%{_sysconfdir}/munin/plugin-conf.d/munin-node
 
-install -m0644 dists/tarball/plugins.conf %{buildroot}/etc/munin/
-install -m0644 dists/tarball/plugins.conf %{buildroot}/etc/munin/plugin-conf.d/munin-node
+cat >%{buildroot}%{_sysconfdir}/munin/plugin-conf.d/hddtemp_smartctl <<EOF
+[hddtemp_smartctl]
+user root
+EOF
 
-# 
+cat >%{buildroot}%{_sysconfdir}/munin/plugin-conf.d/sendmail <<EOF
+[sendmail*]
+user root
+env.mspqueue %{_localstatedir}/spool/clientmqueue
+EOF
+
+cat >%{buildroot}%{_sysconfdir}/munin/plugin-conf.d/fw <<EOF
+[fw*]
+user root
+EOF
+
 # remove the Sybase plugin for now, as they need perl modules 
 # that are not in extras. We can readd them when/if those modules are added. 
 #
 rm -f %{buildroot}/usr/share/munin/plugins/sybase_space
 
-## Server
-make 	CONFIG=dists/redhat/Makefile.config \
-    CHOWN=/bin/true \
-    CHGRP=/bin/true \
-    HTMLDIR=%{buildroot}/%_var/www/%name \
-    CGIDIR=%{buildroot}/%_var/www/cgi-bin \
-	DESTDIR=%{buildroot} \
-    PREFIX=%{buildroot}%_prefix \
-    LIBDIR=%{buildroot}%_datadir/munin \
-    CONFDIR=%{buildroot}%_sysconfdir/munin \
-    DBDIR=%{buildroot}%_var/lib/munin \
-    PERLLIB=%{buildroot}%perl_vendorlib \
-	install-main
+# state and log directories
+install -d -m 755 %{buildroot}%{_localstatedir}/lib/munin
+install -d -m 755 %{buildroot}%{_localstatedir}/log/munin
 
-mkdir -p %{buildroot}/var/www/munin
-mkdir -p %{buildroot}/var/log/munin
-mkdir -p %{buildroot}/etc/cron.d
-mkdir -p %{buildroot}%_webappconfdir
+# apache configuration
+rm -f %{buildroot}%{_localstatedir}/lib/munin/html/.htaccess
 
-cat > %{buildroot}%_webappconfdir/%name.conf <<EOF
-Alias /munin /var/www/munin
-<Directory /var/www/munin>
+install -d -m 755 %{buildroot}%{_webappconfdir}
+cat > %{buildroot}%_webappconfdir/%{name}.conf <<EOF
+Alias /munin %{_localstatedir}/lib/munin/html
+<Directory %{_localstatedir}/lib/munin/html>
     Order deny,allow
-    Allow from 127.0.0.1
+    Allow from all
 </Directory>
-
 EOF
 
-install -m 0644 dists/redhat/munin.cron.d %{buildroot}/etc/cron.d/munin
-install -m 0644 server/style.css %{buildroot}/var/www/munin
-install -m 0644 ChangeLog %{buildroot}%{_docdir}/%{name}-%{version}/ChangeLog
-# install config for sendmail under fedora
-install -m 0644 %{SOURCE1} %{buildroot}/etc/munin/plugin-conf.d/sendmail
-# install config for hddtemp_smartctl
-install -m 0644 %{SOURCE2} %{buildroot}/etc/munin/plugin-conf.d/hddtemp_smartctl
-# install logrotate scripts
-install -m 0644 %{SOURCE3} %{buildroot}/etc/logrotate.d/munin-node
-install -m 0644 %{SOURCE4} %{buildroot}/etc/logrotate.d/munin
+# cron task
+install -d -m 755 %{buildroot}%{_sysconfdir}/cron.d
+install -m 644 dists/redhat/munin.cron.d %{buildroot}%{_sysconfdir}/cron.d/munin
 
-cat >%{buildroot}/etc/munin/plugin-conf.d/fw <<EOF
-[fw*]
-    user root
-EOF
+# logrotate
+install -d -m 755 %{buildroot}%{_sysconfdir}/logrotate.d
+install -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/munin-node
+install -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/munin
+
+# add changelog to installed documentation files
+install -m 0644 ChangeLog %{buildroot}%{_docdir}/%{name}/ChangeLog
 
 %clean
-chmod u+rX -R $RPM_BUILD_ROOT
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %pre node
-%_pre_useradd %name /var/lib/%name /bin/false
+%_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/false
 
 %postun node
-%_postun_userdel %name
+%_postun_userdel %{name}
 
 %post node
 /usr/sbin/munin-node-configure --shell | sh
-%_post_service %name-node
+%_post_service munin-node
 
 %preun node
-%_preun_service %name-node
+%_preun_service munin-node
 
 %pre
-%_pre_useradd %name /var/lib/%name /bin/false
+%_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/false
 
 %postun
-%_postun_userdel %name
+%_postun_userdel %{name}
 %_postun_webapp
 
 %post
 %_post_webapp
 
-%preun
- 
 %files
 %defattr(-, root, root)
-%doc %_docdir/*
+%doc %{_docdir}/%{name}
+%dir %{_datadir}/munin
+%dir %{_sysconfdir}/munin
+%dir %{_localstatedir}/lib/munin
+%dir %attr(-,munin,munin) %{_localstatedir}/log/munin
+%{perl_vendorlib}/Munin
+
+%files master
+%defattr(-, root, root)
 %{_bindir}/munin-cron
+%{_bindir}/munin-check
 %{_datadir}/munin/munin-graph
 %{_datadir}/munin/munin-html
 %{_datadir}/munin/munin-limits
 %{_datadir}/munin/munin-update
-%{_bindir}/munin-check
-%{_bindir}/munindoc
+%{_datadir}/munin/munin-jmx-plugins.jar
+%{_datadir}/munin/cgi
 %{_datadir}/munin/VeraMono.ttf
-%{perl_vendorlib}/Munin.pm
-%dir %{_sysconfdir}/munin
 %dir %{_sysconfdir}/munin/templates
 %config(noreplace) %{_webappconfdir}/%{name}.conf
+%config(noreplace) %{_sysconfdir}/munin/munin.conf
 %config(noreplace) %{_sysconfdir}/munin/templates/*
 %config(noreplace) %{_sysconfdir}/cron.d/munin
-%config(noreplace) %{_sysconfdir}/munin/munin.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/munin
-/var/www/cgi-bin/munin-cgi-graph
-%attr(-, munin, munin) /var/www/munin
-%attr(-, munin, munin) %dir /var/lib/munin
-%attr(-, munin, munin) %dir /var/run/munin
-%attr(-, munin, munin) %dir /var/log/munin
-%{_mandir}/man8/munin-graph*
-%{_mandir}/man8/munin-update*
-%{_mandir}/man8/munin-limits*
-%{_mandir}/man8/munin-html*
-%{_mandir}/man8/munin-cron*
-%{_mandir}/man5/munin.conf*
+%attr(-,munin,munin) %{_localstatedir}/run/munin
+%attr(-,munin,munin) %{_localstatedir}/lib/munin/data
+%attr(-,munin,munin) %{_localstatedir}/lib/munin/html
+%{_mandir}/man8/munin.8*
+%{_mandir}/man8/munin-graph.8*
+%{_mandir}/man8/munin-update.8*
+%{_mandir}/man8/munin-limits.8*
+%{_mandir}/man8/munin-html.8*
+%{_mandir}/man8/munin-cron.8*
+%{_mandir}/man8/munin-check.8*
+%{_mandir}/man5/munin.conf.5*
+%{_mandir}/man3/Munin::*
 
 %files node
-%defattr(-, root, root)
-%doc %_docdir/*
-%dir %{_sysconfdir}/munin
+%doc %{_docdir}/%{name}
 %dir %{_sysconfdir}/munin/plugins
+%dir %{_sysconfdir}/munin/plugin-conf.d
 %config(noreplace) %{_sysconfdir}/munin/munin-node.conf
-%config(noreplace) %{_sysconfdir}/munin/plugin-conf.d
-%config(noreplace) %{_sysconfdir}/munin/plugins.conf
+%config(noreplace) %{_sysconfdir}/munin/plugin-conf.d/*
 %config(noreplace) %{_sysconfdir}/logrotate.d/munin-node
-%_initrddir/%name-node
+%{_initrddir}/munin-node
+%{_bindir}/munindoc
 %{_sbindir}/munin-run
 %{_sbindir}/munin-node
 %{_sbindir}/munin-node-configure
-%{_sbindir}/munin-node-configure-snmp
-%{perl_vendorlib}/Munin
-%attr(-,munin,munin) %dir %_var/log/munin
-%attr(-,munin,munin) %dir %_var/lib/munin
-%dir %attr(-,munin,munin) %_var/lib/munin/plugin-state
-%dir %{_datadir}/munin
+%attr(-,munin,munin) %{_localstatedir}/lib/munin/plugin-state
 %{_datadir}/munin/plugins
-%{_mandir}/man8/munin-run*
-%{_mandir}/man8/munin-node*
-%{_mandir}/man5/munin-node*
+%{_mandir}/man1/munindoc.1*
+%{_mandir}/man1/munin-run.1*
+%{_mandir}/man1/munin-node.1*
+%{_mandir}/man1/munin-node-configure.1*
+%{_mandir}/man5/munin-node.conf.5*
