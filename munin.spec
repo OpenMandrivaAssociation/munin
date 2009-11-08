@@ -13,7 +13,7 @@ Source5: munin-node.init
 Patch6: 380-munin-graph-utf8.patch
 BuildRequires: html2text
 BuildRequires: htmldoc
-BuildRequires: java-devel
+BuildRequires: java-devel-openjdk
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}
 
