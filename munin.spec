@@ -204,7 +204,9 @@ fi
 %_postun_userdel %{name}
 
 %post node
-/usr/sbin/munin-node-configure --shell | sh
+if [ $1 = 1 ]; then
+    /usr/sbin/munin-node-configure --shell | sh
+fi
 %_post_service munin-node
 
 %preun node
