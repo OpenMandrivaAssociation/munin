@@ -172,7 +172,7 @@ cat > %{buildroot}%{_sysconfdir}/logrotate.d/munin-node <<EOF
 /var/log/munin/munin-node.log {
 }
 EOF
-cat > %{buildroot}%{_sysconfdir}/logrotate.d/munin-node <<EOF
+cat > %{buildroot}%{_sysconfdir}/logrotate.d/munin <<EOF
 /var/log/munin/munin-update.log /var/log/munin/munin-graph.log /var/log/munin/munin-html.log /var/log/munin/munin-limits.log {
 }
 EOF
