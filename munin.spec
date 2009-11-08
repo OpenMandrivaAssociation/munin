@@ -12,10 +12,6 @@ Source0: http://download.sourceforge.net/sourceforge/munin/%{name}_%{version}-%{
 Source3: munin-node.logrotate
 Source4: munin.logrotate
 Source5: munin-node.init
-Patch2: munin-nocheck-user.patch
-Patch3: munin-plugins-variousfix.patch
-Patch4: munin-cgi-graph-fix-lock.patch
-Patch5: munin-cmpop.patch
 Patch6: 380-munin-graph-utf8.patch
 BuildRequires: html2text
 BuildRequires: htmldoc
@@ -77,8 +73,6 @@ SNMP or similar technology.
 
 %prep
 %setup -q -n %{name}-%{version}-%{beta}
-#%patch2 -p0 -b .nochown
-#%patch5 -p0 -b .cmpop
 #%patch6 -p0 -b .utf8
 
 %build
