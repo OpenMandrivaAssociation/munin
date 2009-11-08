@@ -185,6 +185,18 @@ install -m 0644 ChangeLog %{buildroot}%{_docdir}/%{name}/ChangeLog
 %clean
 rm -rf %{buildroot}
 
+%pre master
+# move data to new location
+if [ ! -d %{_localstatedir}/lib/%{name}/data ]; then
+    cd %{_localstatedir}/lib/%{name}
+    mkdir data
+    for i in *; do
+        [ $i == plugin-state ] && continue
+        [ $i == data ] && continue
+        mv $i data
+    done
+fi
+
 %pre node
 %_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/false
 
