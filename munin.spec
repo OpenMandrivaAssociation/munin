@@ -3,7 +3,7 @@
 
 Name:      munin
 Version:   1.4.0
-Release:   %mkrel 0.%{beta}.1
+Release:   %mkrel 0.%{beta}.2
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
@@ -184,15 +184,17 @@ install -m 644 ChangeLog %{buildroot}%{_docdir}/%{name}/ChangeLog
 rm -rf %{buildroot}
 
 %pre master
-# move data to new location
-if [ ! -d %{_localstatedir}/lib/%{name}/data ]; then
-    cd %{_localstatedir}/lib/%{name}
-    mkdir data
-    for i in *; do
-        [ $i == plugin-state ] && continue
-        [ $i == data ] && continue
-        mv $i data
-    done
+if [ $1 = 2 ]; then
+    # on upgrade, move data to new location if needed
+    if [ ! -d %{_localstatedir}/lib/%{name}/data ]; then
+        cd %{_localstatedir}/lib/%{name}
+        mkdir data
+        for i in *; do
+            [ $i == plugin-state ] && continue
+            [ $i == data ] && continue
+            mv $i data
+        done
+    fi
 fi
 
 %pre node
