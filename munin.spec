@@ -9,8 +9,6 @@ License:   GPLv2
 Group:     Monitoring
 URL:       http://munin.projects.linpro.no/
 Source0: http://download.sourceforge.net/sourceforge/munin/%{name}_%{version}-%{beta}.tar.gz
-Source3: munin-node.logrotate
-Source4: munin.logrotate
 Source5: munin-node.init
 Patch6: 380-munin-graph-utf8.patch
 BuildRequires: html2text
@@ -170,11 +168,17 @@ install -m 644 dists/redhat/munin.cron.d %{buildroot}%{_sysconfdir}/cron.d/munin
 
 # logrotate
 install -d -m 755 %{buildroot}%{_sysconfdir}/logrotate.d
-install -m 644 %{SOURCE3} %{buildroot}%{_sysconfdir}/logrotate.d/munin-node
-install -m 644 %{SOURCE4} %{buildroot}%{_sysconfdir}/logrotate.d/munin
+cat > %{buildroot}%{_sysconfdir}/logrotate.d/munin-node <<EOF
+/var/log/munin/munin-node.log {
+}
+EOF
+cat > %{buildroot}%{_sysconfdir}/logrotate.d/munin-node <<EOF
+/var/log/munin/munin-update.log /var/log/munin/munin-graph.log /var/log/munin/munin-html.log /var/log/munin/munin-limits.log {
+}
+EOF
 
 # add changelog to installed documentation files
-install -m 0644 ChangeLog %{buildroot}%{_docdir}/%{name}/ChangeLog
+install -m 644 ChangeLog %{buildroot}%{_docdir}/%{name}/ChangeLog
 
 %clean
 rm -rf %{buildroot}
