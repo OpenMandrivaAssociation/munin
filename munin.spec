@@ -1,4 +1,4 @@
-%define beta alpha
+%define beta alpha2
 %define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\))
 
 Name:      munin
@@ -110,11 +110,6 @@ make \
     DESTDIR=%{buildroot} \
     HOSTNAME=localhost \
     install install-doc
-
-# fix munindoc installation
-rm -f %{buildroot}%{_bindir}/munindoc.in
-mv %{buildroot}%{_mandir}/man1/munindoc.in.1 \
-    %{buildroot}%{_mandir}/man1/munindoc.1
 
 # init script
 install -d -m 755 %{buildroot}%{_initrddir}
