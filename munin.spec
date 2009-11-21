@@ -1,9 +1,9 @@
-%define beta alpha2
+%define beta beta
 %define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\))
 
 Name:      munin
 Version:   1.4.0
-Release:   %mkrel 0.%{beta}.2
+Release:   %mkrel 0.%{beta}.1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
