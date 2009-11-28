@@ -1,16 +1,14 @@
-%define beta beta
 %define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\))
 
 Name:      munin
 Version:   1.4.0
-Release:   %mkrel 0.%{beta}.1
+Release:   %mkrel 1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
 URL:       http://munin.projects.linpro.no/
-Source0: http://download.sourceforge.net/sourceforge/munin/%{name}_%{version}-%{beta}.tar.gz
+Source0: http://download.sourceforge.net/sourceforge/munin/%{name}_%{version}.tar.gz
 Source5: munin-node.init
-Patch6: 380-munin-graph-utf8.patch
 BuildRequires: html2text
 BuildRequires: htmldoc
 BuildRequires: java-devel-openjdk
@@ -70,8 +68,7 @@ such as a switch or a server running another operating system, by using
 SNMP or similar technology.
 
 %prep
-%setup -q -n %{name}-%{version}-%{beta}
-#%patch6 -p0 -b .utf8
+%setup -q -n %{name}-%{version}
 
 %build
 make \
