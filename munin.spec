@@ -2,7 +2,7 @@
 
 Name:      munin
 Version:   1.4.0
-Release:   %mkrel 1
+Release:   %mkrel 2
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
@@ -12,6 +12,7 @@ Source5: munin-node.init
 BuildRequires: html2text
 BuildRequires: htmldoc
 BuildRequires: java-devel-openjdk
+BuildRequires: perl(Module::Build)
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-%{version}
 
