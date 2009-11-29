@@ -223,6 +223,10 @@ fi
 %dir %{_localstatedir}/lib/munin
 %dir %attr(-,munin,munin) %{_localstatedir}/log/munin
 %{perl_vendorlib}/Munin
+%exclude %{perl_vendorlib}/Munin/Master
+%exclude %{perl_vendorlib}/Munin/Node
+%exclude %{perl_vendorlib}/Munin/Plugin
+%exclude %{perl_vendorlib}/Munin/Plugin.pm
 
 %files master
 %defattr(-, root, root)
@@ -235,6 +239,7 @@ fi
 %{_datadir}/munin/munin-jmx-plugins.jar
 %{_datadir}/munin/cgi
 %{_datadir}/munin/VeraMono.ttf
+%{perl_vendorlib}/Munin/Master
 %dir %{_sysconfdir}/munin/templates
 %config(noreplace) %{_webappconfdir}/%{name}.conf
 %config(noreplace) %{_sysconfdir}/munin/munin.conf
@@ -268,6 +273,9 @@ fi
 %{_sbindir}/munin-node-configure
 %attr(-,munin,munin) %{_localstatedir}/lib/munin/plugin-state
 %{_datadir}/munin/plugins
+%{perl_vendorlib}/Munin/Node
+%{perl_vendorlib}/Munin/Plugin
+%{perl_vendorlib}/Munin/Plugin.pm
 %{_mandir}/man1/munindoc.1*
 %{_mandir}/man1/munin-run.1*
 %{_mandir}/man1/munin-node.1*
