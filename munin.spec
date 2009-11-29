@@ -49,6 +49,7 @@ Requires(postun): rpm-helper
 Requires(post): rpm-helper
 Requires(preun): rpm-helper
 Requires: perl-Net-SNMP >= 5.2.0
+Obsoletes: munin-plugins-slapd
 
 %description node
 Munin is a highly flexible and powerful solution used to create graphs of
