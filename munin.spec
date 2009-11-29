@@ -2,13 +2,15 @@
 
 Name:      munin
 Version:   1.4.0
-Release:   %mkrel 3
+Release:   %mkrel 4
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
 URL:       http://munin.projects.linpro.no/
 Source0: http://download.sourceforge.net/sourceforge/munin/%{name}_%{version}.tar.gz
 Source5: munin-node.init
+Requires(pre): rpm-helper
+Requires(postun): rpm-helper
 BuildRequires: html2text
 BuildRequires: htmldoc
 BuildRequires: java-devel-openjdk
@@ -27,6 +29,8 @@ Summary: Network-wide graphing framework (master)
 Requires: rrdtool
 Requires: %{name} = %{version}-%{release}
 Obsoletes: %{name} < 1.4.0
+Requires(post): rpm-helper
+Requires(postun): rpm-helper
 
 %description master
 Munin is a highly flexible and powerful solution used to create graphs of
@@ -176,6 +180,12 @@ install -m 644 ChangeLog %{buildroot}%{_docdir}/%{name}/ChangeLog
 %clean
 rm -rf %{buildroot}
 
+%pre
+%_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/false
+
+%postun
+%_postun_userdel %{name}
+
 %pre master
 if [ $1 = 2 ]; then
     # on upgrade, move data to new location if needed
@@ -190,11 +200,14 @@ if [ $1 = 2 ]; then
     fi
 fi
 
+%post master
+%_post_webapp
+
+%postun master
+%_postun_webapp
+
 %pre node
 %_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/false
-
-%postun node
-%_postun_userdel %{name}
 
 %post node
 if [ $1 = 1 ]; then
@@ -205,15 +218,8 @@ fi
 %preun node
 %_preun_service munin-node
 
-%pre
-%_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/false
-
-%postun
+%postun node
 %_postun_userdel %{name}
-%_postun_webapp
-
-%post
-%_post_webapp
 
 %files
 %defattr(-, root, root)
