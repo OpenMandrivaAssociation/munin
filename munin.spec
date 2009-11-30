@@ -156,8 +156,8 @@ install -d -m 755 %{buildroot}%{_webappconfdir}
 cat > %{buildroot}%_webappconfdir/%{name}.conf <<EOF
 Alias /munin %{_localstatedir}/lib/munin/html
 <Directory %{_localstatedir}/lib/munin/html>
-    Order deny,allow
-    Allow from all
+    Order allow,deny
+    Allow from localhost
 </Directory>
 EOF
 
