@@ -151,11 +151,14 @@ install -d -m 755 %{buildroot}%{_localstatedir}/log/munin
 rm -f %{buildroot}%{_localstatedir}/lib/munin/html/.htaccess
 
 install -d -m 755 %{buildroot}%{_webappconfdir}
-cat > %{buildroot}%_webappconfdir/%{name}.conf <<EOF
+cat > %{buildroot}%{_webappconfdir}/%{name}.conf <<EOF
 Alias /munin %{_localstatedir}/lib/munin/html
+
 <Directory %{_localstatedir}/lib/munin/html>
     Order allow,deny
-    Allow from localhost
+    Allow from 127.0.0.1
+    Deny from all
+    ErrorDocument 403 "Access denied per %{_webappconfdir}/%{name}.conf"
 </Directory>
 EOF
 
