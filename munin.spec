@@ -1,15 +1,14 @@
 %define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\))
 
 Name:      munin
-Version:   1.4.0
-Release:   %mkrel 5
+Version:   1.4.1
+Release:   %mkrel 1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
 URL:       http://munin.projects.linpro.no/
-Source0: http://download.sourceforge.net/sourceforge/munin/%{name}_%{version}.tar.gz
+Source0: http://download.sourceforge.net/sourceforge/munin/%{name}-%{version}.tar.gz
 Source5: munin-node.init
-Patch0:  munin-1.4.0-fix-fw_forwarded_local-autoconf.patch
 Requires(pre): rpm-helper
 Requires(postun): rpm-helper
 BuildRequires: html2text
@@ -75,7 +74,6 @@ SNMP or similar technology.
 
 %prep
 %setup -q -n %{name}-%{version}
-%patch0 -p1
 
 %build
 make \
