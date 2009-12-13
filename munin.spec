@@ -2,7 +2,7 @@
 
 Name:      munin
 Version:   1.4.1
-Release:   %mkrel 1
+Release:   %mkrel 2
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
@@ -170,6 +170,10 @@ install -m 644 dists/redhat/munin.cron.d %{buildroot}%{_sysconfdir}/cron.d/munin
 install -d -m 755 %{buildroot}%{_sysconfdir}/logrotate.d
 cat > %{buildroot}%{_sysconfdir}/logrotate.d/munin-node <<EOF
 /var/log/munin/munin-node.log {
+    postrotate
+        service munin-node reload
+    endscript
+
 }
 EOF
 cat > %{buildroot}%{_sysconfdir}/logrotate.d/munin <<EOF
