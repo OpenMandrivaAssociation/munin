@@ -1,8 +1,8 @@
 %define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\))
 
 Name:      munin
-Version:   1.4.1
-Release:   %mkrel 2
+Version:   1.4.2
+Release:   %mkrel 1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
@@ -251,7 +251,8 @@ fi
 %{_datadir}/munin/munin-update
 %{_datadir}/munin/munin-jmx-plugins.jar
 %{_datadir}/munin/cgi
-%{_datadir}/munin/VeraMono.ttf
+%{_datadir}/munin/DejaVuSans.ttf
+%{_datadir}/munin/DejaVuSansMono.ttf
 %{perl_vendorlib}/Munin/Master
 %dir %{_sysconfdir}/munin/templates
 %config(noreplace) %{_webappconfdir}/%{name}.conf
