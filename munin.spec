@@ -155,10 +155,8 @@ cat > %{buildroot}%{_webappconfdir}/%{name}.conf <<EOF
 Alias /munin %{_localstatedir}/lib/munin/html
 
 <Directory %{_localstatedir}/lib/munin/html>
-    Order allow,deny
-    Allow from 127.0.0.1
-    Deny from all
-    ErrorDocument 403 "Access denied per %{_webappconfdir}/%{name}.conf"
+    Order deny,allow
+    Allow from all
 </Directory>
 EOF
 
