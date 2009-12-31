@@ -1,7 +1,7 @@
 %define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\))
 
 Name:      munin
-Version:   1.4.2
+Version:   1.4.3
 Release:   %mkrel 1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
@@ -188,10 +188,6 @@ rm -rf %{buildroot}
 %pre
 %_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/false
 
-%postun
-%_postun_userdel %{name}
-
-%pre master
 if [ $1 = 2 ]; then
     # on upgrade, move data to new location if needed
     if [ ! -d %{_localstatedir}/lib/%{name}/data ]; then
@@ -204,6 +200,10 @@ if [ $1 = 2 ]; then
         done
     fi
 fi
+
+%postun
+%_postun_userdel %{name}
+
 
 %post master
 %_post_webapp
