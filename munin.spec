@@ -1,8 +1,8 @@
 %define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\))
 
 Name:      munin
-Version:   1.4.3
-Release:   %mkrel 2
+Version:   1.4.4
+Release:   %mkrel 1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
