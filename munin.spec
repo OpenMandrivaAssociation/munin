@@ -2,7 +2,7 @@
 
 Name:      munin
 Version:   1.4.4
-Release:   %mkrel 1
+Release:   %mkrel 2
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
@@ -232,7 +232,8 @@ fi
 %dir %{_datadir}/munin
 %dir %{_sysconfdir}/munin
 %dir %{_localstatedir}/lib/munin
-%dir %attr(-,munin,munin) %{_localstatedir}/log/munin
+%attr(-,munin,munin) %{_localstatedir}/run/munin
+%attr(-,munin,munin) %{_localstatedir}/log/munin
 %{perl_vendorlib}/Munin
 %exclude %{perl_vendorlib}/Munin/Master
 %exclude %{perl_vendorlib}/Munin/Node
@@ -258,7 +259,6 @@ fi
 %config(noreplace) %{_sysconfdir}/munin/templates/*
 %config(noreplace) %{_sysconfdir}/cron.d/munin
 %config(noreplace) %{_sysconfdir}/logrotate.d/munin
-%attr(-,munin,munin) %{_localstatedir}/run/munin
 %attr(-,munin,munin) %{_localstatedir}/lib/munin/data
 %attr(-,munin,munin) %{_localstatedir}/lib/munin/html
 %{_mandir}/man8/munin.8*
