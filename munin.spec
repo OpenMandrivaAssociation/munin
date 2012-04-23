@@ -1,7 +1,7 @@
 %define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\))
 
 Name:      munin
-Version:   1.4.5
+Version:   1.4.7
 Release:   %mkrel 1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
@@ -272,7 +272,6 @@ fi
 %{_mandir}/man3/Munin::*
 
 %files node
-%doc %{_docdir}/%{name}
 %dir %{_sysconfdir}/munin/plugins
 %dir %{_sysconfdir}/munin/plugin-conf.d
 %config(noreplace) %{_sysconfdir}/munin/munin-node.conf
