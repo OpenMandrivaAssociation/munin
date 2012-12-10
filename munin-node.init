@@ -1,0 +1,74 @@
+#! /bin/sh
+#
+# munin-node	Control the Munin Node Server (formerly Linpro RRD client)
+#
+# chkconfig: 345 90 10
+# description: munin node agents
+# processname: munin-node
+# config: /etc/munin/munin-node.conf
+# pidfile: /var/run/munin/munin-node.pid
+
+### BEGIN INIT INFO
+# Provides: munin-node
+# Default-Start: 3 4 5
+# Short-Description: A monitoring agent used to graphs various metrics
+# Description: A monitoring agent used to graphs various metrics
+# Should-Start: $network
+### END INIT INFO
+
+
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+NAME=munin-node
+BINARY=/usr/sbin/$NAME
+PROCESS=$NAME
+LOCKFILE=/var/lock/subsys/$NAME
+
+start() {
+    # Check if it is already running
+    if [ ! -f $LOCKFILE ]; then
+	echo -n "Starting $NAME: "
+	daemon $BINARY
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && touch $LOCKFILE
+	echo
+    fi
+}
+
+stop() {
+    echo -n "Stopping $NAME:"
+    killproc $PROCESS
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+    echo
+}
+
+restart() {
+    stop
+    start
+}
+
+RETVAL=0
+
+case "$1" in
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    restart|reload)
+  	restart
+	;;
+    status)
+	status $PROCESS
+	;;
+    *)
+	echo "Usage: $0 munin-node {start|stop|status|restart}"
+	RETVAL=1
+	;;
+esac
+
+exit $RETVAL

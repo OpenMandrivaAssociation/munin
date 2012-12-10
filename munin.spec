@@ -292,3 +292,155 @@ fi
 %{_mandir}/man1/munin-node.1*
 %{_mandir}/man1/munin-node-configure.1*
 %{_mandir}/man5/munin-node.conf.5*
+
+
+%changelog
+* Mon Apr 23 2012 Alexander Khrukin <akhrukin@mandriva.org> 1.4.7-1mdv2012.0
++ Revision: 792867
+- version update 1.4.7
+
+* Fri Jul 16 2010 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.5-1mdv2011.0
++ Revision: 554269
+- update to new version 1.4.5
+
+* Wed Mar 24 2010 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.4-2mdv2010.1
++ Revision: 527110
+- transfer %%{_localstatedir}/run/munin to shared package, it is needed by the agent also
+
+* Mon Mar 01 2010 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.4-1mdv2010.1
++ Revision: 513036
+- new version
+- really fix munin-node init script
+
+* Thu Dec 31 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.3-1mdv2010.1
++ Revision: 484536
+- new version
+- fix data migration from 1.3.x package
+- fix init script (mdv bug #56646)
+
+* Wed Dec 16 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.2-1mdv2010.1
++ Revision: 479561
+- switch to non-sensitive apache access policy
+- new version
+- reload munin-node after rotating logs
+
+* Fri Dec 04 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.1-1mdv2010.1
++ Revision: 473474
+- more explicit access rules and access denied error message in apache configuration
+- new version
+
+* Mon Nov 30 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.0-5mdv2010.1
++ Revision: 472115
+- restrict default access permissions to localhost only, as per new policy
+- fix fw_forwarded_local plugin autoconfiguration
+- fix post-installation scripts, and related dependencies
+- split perl modules between master and node packages, so as to leverage deps
+- drop useless explicit dependency on perl-Net-SNMP
+- munin-node obsoletes munin-plugins-slapd
+
+* Sat Nov 28 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.0-2mdv2010.1
++ Revision: 470864
+- fix build dependencies
+- 1.4.0 final
+- new version
+
+* Sun Nov 15 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.0-0.alpha2.2mdv2010.1
++ Revision: 466340
+- new alpha release
+
+* Mon Nov 09 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.0-0.alpha.2mdv2010.1
++ Revision: 463277
+- only run data move procedure on upgrade
+
+* Sun Nov 08 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.0-0.alpha.1mdv2010.1
++ Revision: 463050
+- use here-in documents for logrotate configuration
+- don't redefine logrotate configuration options uselessly
+- drop all patches, excepted utf8 one
+- only run automatic configuration on initial install, to avoid removed plugins to come back after each update
+- handle data location change when upgrading
+- new version
+- spec cleanup
+- move server components in munin-master package
+- move generated HTML files in FHS-compliant /var/lib/munin/html
+- move server data in /var/lib/munin/data
+- move plugins data outside of server data directory
+- use herein-documents for additional plugins configuration
+- drop redundant dependencies
+
+* Wed Aug 05 2009 Michael Scherer <misc@mandriva.org> 1.3.4-8mdv2010.0
++ Revision: 410245
+- fix error in the patch for the utf8 fix, see bug 51502 for details
+- correct the license
+
+* Wed Jul 01 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.3.4-7mdv2010.0
++ Revision: 391252
+- install manually missing Munin::Plugin::SNMP module
+- keep bash completion in its own package
+
+* Thu Jun 25 2009 Olivier Thauvin <nanardon@mandriva.org> 1.3.4-6mdv2010.0
++ Revision: 388903
+- #51848: requires fonts-ttf-dejavu
+
+* Mon Jun 08 2009 Olivier Thauvin <nanardon@mandriva.org> 1.3.4-5mdv2010.0
++ Revision: 384102
+- fix #51502
+
+* Fri Oct 10 2008 Guillaume Rousse <guillomovitch@mandriva.org> 1.3.4-4mdv2009.1
++ Revision: 291379
+- backportability < 2009.0
+
+* Wed Sep 24 2008 Olivier Thauvin <nanardon@mandriva.org> 1.3.4-3mdv2009.0
++ Revision: 287773
+- munin-html: use cmp vs <=> operator for string sort
+
+* Tue Jun 17 2008 Guillaume Rousse <guillomovitch@mandriva.org> 1.3.4-2mdv2009.0
++ Revision: 223662
+- bash completion
+
+  + Michael Scherer <misc@mandriva.org>
+    - use lowercase for message, asked by guillomovitch
+    - requires network on boot, asked by guillomovitch
+
+* Sun Jun 08 2008 Olivier Thauvin <nanardon@mandriva.org> 1.3.4-1mdv2009.0
++ Revision: 216916
+- 1.3.4
+
+  + Pixel <pixel@mandriva.com>
+    - adapt to %%_localstatedir now being /var instead of /var/lib (#22312)
+
+  + Olivier Blin <blino@mandriva.org>
+    - restore BuildRoot
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - kill re-definition of %%buildroot on Pixel's request
+
+* Fri Oct 12 2007 Guillaume Rousse <guillomovitch@mandriva.org> 1.3.3-4mdv2008.1
++ Revision: 97351
+- various file list cleanup
+- no need for %%doc tags for man pages
+- make munin-node package own plugins directory, otherwise it get loosely created with various perms, breaking usage if too much restricted
+
+  + Olivier Thauvin <nanardon@mandriva.org>
+    - provide a config for fw* plugins
+    - path4: fix cgi-graph lock
+    - simplify specfile
+
+* Mon May 28 2007 Olivier Thauvin <nanardon@mandriva.org> 1.3.3-3mdv2008.0
++ Revision: 32010
+- one more plugins fix
+- patch3: plugins fix
+
+* Mon May 28 2007 Olivier Thauvin <nanardon@mandriva.org> 1.3.3-2mdv2008.0
++ Revision: 31972
+- move Munin::Plugin into munin-node, where it is required
+- munin-node require perl-Net-SNMP >= 5.2.0 for some plugins
+
+* Mon May 28 2007 Olivier Thauvin <nanardon@mandriva.org> 1.3.3-1mdv2008.0
++ Revision: 31959
+- 1.3.3
+
+* Sat May 12 2007 Olivier Thauvin <nanardon@mandriva.org> 1.2.5-6mdv2008.0
++ Revision: 26426
+- fix cgi loacation
+
