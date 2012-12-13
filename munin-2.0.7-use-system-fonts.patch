@@ -1,0 +1,16 @@
+diff -Naur -x '*~' -x '*.rej' -x '*.orig' munin-2.0.7/master/lib/Munin/Master/GraphOld.pm munin-2.0.7-use-system-fonts/master/lib/Munin/Master/GraphOld.pm
+--- munin-2.0.7/master/lib/Munin/Master/GraphOld.pm	2012-10-03 00:46:50.000000000 +0200
++++ munin-2.0.7-use-system-fonts/master/lib/Munin/Master/GraphOld.pm	2012-10-06 21:05:17.373494804 +0200
+@@ -1661,9 +1661,9 @@
+ 	# The RRD 1.2 documentation says you can identify font family
+ 	# names but I never got that to work, but full font path worked
+ 	@options = (
+-		'--font', "LEGEND:7:$libdir/DejaVuSansMono.ttf",
+-		'--font', "UNIT:7:$libdir/DejaVuSans.ttf",
+-		'--font', "AXIS:7:$libdir/DejaVuSans.ttf",
++		'--font', "LEGEND:7:/usr/share/fonts/TTF/dejavu/DejaVuSansMono.ttf",
++		'--font', "UNIT:7:/usr/share/fonts/TTF/dejavu/DejaVuSans.ttf",
++		'--font', "AXIS:7:/usr/share/fonts/TTF/dejavu/DejaVuSans.ttf",
+ 	       );
+     } else {
+ 	# At least 1.3

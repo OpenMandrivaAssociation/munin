@@ -1,22 +1,26 @@
-%define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\))
+%define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\|DBD::Pg\\))
 
 Name:      munin
-Version:   1.4.7
+Version:   2.0.9
 Release:   %mkrel 1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
 URL:       http://munin.projects.linpro.no/
-Source0: http://download.sourceforge.net/sourceforge/munin/%{name}-%{version}.tar.gz
-Source5: munin-node.init
-Requires(pre): rpm-helper
-Requires(postun): rpm-helper
+Source0:   http://download.sourceforge.net/sourceforge/munin/%{name}-%{version}.tar.gz
+Source1:    munin-node.service
+Source2:    munin-asyncd.service
+Source3:    munin-fcgi-html.service
+Source4:    munin-fcgi-graph.service
+Source5:    munin.tmpfiles
+Patch0:     munin-2.0.7-use-system-fonts.patch
+Requires(post):  rpm-helper >= 0.24.8-1
+Requires(preun): rpm-helper >= 0.24.8-1
 BuildRequires: html2text
 BuildRequires: htmldoc
-BuildRequires: java-devel-openjdk
+BuildRequires: java-devel
 BuildRequires: perl(Module::Build)
 BuildArch: noarch
-BuildRoot: %{_tmppath}/%{name}-%{version}
 
 %description
 Munin is a highly flexible and powerful solution used to create graphs of
@@ -28,7 +32,9 @@ Group: Monitoring
 Summary: Network-wide graphing framework (master)
 Requires: rrdtool
 Requires: %{name} = %{version}-%{release}
-Obsoletes: %{name} < 1.4.0
+Suggests:   perl(CGI::Fast)
+Requires:   perl(FCGI)
+Requires:   spawn-fcgi
 Requires(post): rpm-helper
 Requires(postun): rpm-helper
 
@@ -48,11 +54,8 @@ Summary: Network-wide graphing framework (node)
 Requires: procps >= 2.0.7
 Requires: sysstat
 Requires: %{name} = %{version}-%{release}
-Requires(pre): rpm-helper
-Requires(postun): rpm-helper
-Requires(post): rpm-helper
-Requires(preun): rpm-helper
-Obsoletes: munin-plugins-slapd
+Requires(post):  rpm-helper >= 0.24.8-1
+Requires(preun): rpm-helper >= 0.24.8-1
 
 %description node
 Munin is a highly flexible and powerful solution used to create graphs of
@@ -72,18 +75,42 @@ relay information from other devices in your network that can't run Munin,
 such as a switch or a server running another operating system, by using
 SNMP or similar technology.
 
+%package java-plugins
+Group:      Monitoring
+Summary:    java-plugins for munin
+Requires:   %{name}-node = %{version}-%{release}
+Requires:   jpackage-utils
+
+%description java-plugins
+java-plugins for munin-node.
+
+%package async
+Group:      Monitoring
+Summary:    Asynchronous client tools for munin
+Requires:   %{name}-node = %{version}-%{release}
+
+%description async
+Munin is a highly flexible and powerful solution used to create graphs of
+virtually everything imaginable throughout your network, while still
+maintaining a rattling ease of installation and configuration.
+This package contains the tools necessary for setting up an asynchronous
+client / spooling system
+
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
+%patch0 -p 1
 
 %build
 make \
-    CONFIG=dists/redhat/Makefile.config \
+    CONFIG=Makefile.config \
     PREFIX=%{_prefix} \
-    DOCDIR={_docdir}/%{name} \
+    DOCDIR=%{_docdir}/%{name} \
     MANDIR=%{_mandir} \
     HTMLDIR=%{_localstatedir}/lib/munin/html \
     DBDIR=%{_localstatedir}/lib/munin/data \
     PLUGSTATE=%{_localstatedir}/lib/munin/plugin-state \
+    LOGDIR=%{_localstatedir}/log/munin \
+    STATEDIR=/run/munin \
     CGIDIR=%{_datadir}/%{name}/cgi \
     CONFDIR=%{_sysconfdir}/munin \
     LIBDIR=%{_datadir}/munin \
@@ -94,33 +121,64 @@ make \
 %install
 rm -rf %{buildroot}
 
-## Node
+# ugly hack
+cp common/blib/lib/Munin/Common/Defaults.pm Defaults.pm
+
 make \
-    CONFIG=dists/redhat/Makefile.config \
-    CHOWN=/bin/true \
-    CHGRP=/bin/true \
+    CONFIG=Makefile.config \
+    PREFIX=%{buildroot}%{_prefix} \
     DOCDIR=%{buildroot}%{_docdir}/%{name} \
     MANDIR=%{buildroot}%{_mandir} \
     HTMLDIR=%{buildroot}%{_localstatedir}/lib/munin/html \
     DBDIR=%{buildroot}%{_localstatedir}/lib/munin/data \
     PLUGSTATE=%{buildroot}%{_localstatedir}/lib/munin/plugin-state \
     CGIDIR=%{buildroot}%{_datadir}/%{name}/cgi \
-    PREFIX=%{buildroot}%{_prefix} \
+    LOGDIR=%{buildroot}%{_localstatedir}/log/munin \
+    STATEDIR=%{buildroot}/run/munin \
     LIBDIR=%{buildroot}%{_datadir}/munin \
     CONFDIR=%{buildroot}%{_sysconfdir}/munin \
     PERLLIB=%{buildroot}%{perl_vendorlib} \
     DESTDIR=%{buildroot} \
     HOSTNAME=localhost \
+    CHOWN=/bin/true \
+    CHGRP=/bin/true \
+    CHMOD=/bin/true \
+    CHECKUSER=true \
+    CHECKGROUP=true \
     install install-doc
 
-# init script
-install -d -m 755 %{buildroot}%{_initrddir}
-install -m 755 %{SOURCE5} %{buildroot}/%{_initrddir}/munin-node
+cp -f Defaults.pm %{buildroot}%{perl_vendorlib}/Munin/Common/Defaults.pm
+
+# move template and static files in data
+mv %{buildroot}%{_sysconfdir}/munin/templates %{buildroot}%{_datadir}/%{name}
+mv %{buildroot}%{_sysconfdir}/munin/static %{buildroot}%{_datadir}/%{name}
+
+# configuration
+install -d -m 755 %{buildroot}%{_sysconfdir}/munin/munin-conf.d
+perl -pi \
+    -e 's|^# ?tmpldir.*|tmpldir %{_datadir}/%{name}/templates|;' \
+    -e 's|^# ?staticdir.*|staticdir %{_datadir}/%{name}/static|;' \
+    -e 's|^# ?cgiurl_graph.*|cgiurl_graph /munin/cgi/munin-cgi-graph|;' \
+   %{buildroot}%{_sysconfdir}/munin/munin.conf
+
+# systemd service
+install -d -m 755 %{buildroot}%{_unitdir}
+install -m 644 %{SOURCE1} %{buildroot}%{_unitdir}/munin-node.service
+install -m 644 %{SOURCE2} %{buildroot}%{_unitdir}/munin-asyncd.service
+install -m 644 %{SOURCE3} %{buildroot}%{_unitdir}/munin-fcgi-html.service
+install -m 644 %{SOURCE4} %{buildroot}%{_unitdir}/munin-fcgi-graph.service
+
+install -D -m 644 %{SOURCE5} %{buildroot}%{_prefix}/lib/tmpfiles.d/%{name}.conf
 
 # plugins configuration
 install -d -m 755 %{buildroot}%{_sysconfdir}/munin/plugin-conf.d
-install -m 644 dists/tarball/plugins.conf \
-    %{buildroot}%{_sysconfdir}/munin/plugin-conf.d/munin-node
+cat > %{buildroot}%{_sysconfdir}/munin/plugin-conf.d/munin-node <<EOF
+[diskstats]
+user munin
+
+[iostat_ios]
+user munin
+EOF
 
 cat >%{buildroot}%{_sysconfdir}/munin/plugin-conf.d/hddtemp_smartctl <<EOF
 [hddtemp_smartctl]
@@ -133,36 +191,64 @@ user root
 env.mspqueue %{_localstatedir}/spool/clientmqueue
 EOF
 
-cat >%{buildroot}%{_sysconfdir}/munin/plugin-conf.d/fw <<EOF
-[fw*]
+cat >%{buildroot}%{_sysconfdir}/munin/plugin-conf.d/postfix <<EOF
+[postfix*]
 user root
+env.logfile info.log
+env.logdir /var/log/mail
 EOF
 
-# remove the Sybase plugin for now, as they need perl modules 
-# that are not in extras. We can readd them when/if those modules are added. 
-#
+cat >%{buildroot}%{_sysconfdir}/munin/plugin-conf.d/df <<EOF
+[df*]
+env.exclude none unknown iso9660 squashfs udf romfs ramfs debugfs binfmt_misc rpc_pipefs fuse.gvfs-fuse-daemon
+EOF
+
+# remove the Sybase plugin for now, as it requires unavailable perl modules
 rm -f %{buildroot}/usr/share/munin/plugins/sybase_space
+
+# move munin-asyncd to /usr/sbin/ (FHS)
+mv %{buildroot}/%{_datadir}/munin/munin-asyncd \
+    %{buildroot}/%{_sbindir}/munin-asyncd
+
+# remove duplicated fonts
+rm %{buildroot}/usr/share/munin/DejaVuSans*.ttf
+
+# additional configuration directory
+install -d -m 755 %{buildroot}%{_sysconfdir}/munin/munin-conf.d
 
 # state and log directories
 install -d -m 755 %{buildroot}%{_localstatedir}/lib/munin
-install -d -m 755 %{buildroot}%{_localstatedir}/log/munin
+install -d -m 775 %{buildroot}%{_localstatedir}/lib/munin/data/cgi-tmp
+install -d -m 775 %{buildroot}%{_localstatedir}/log/munin
 
 # apache configuration
 rm -f %{buildroot}%{_localstatedir}/lib/munin/html/.htaccess
 
 install -d -m 755 %{buildroot}%{_webappconfdir}
 cat > %{buildroot}%{_webappconfdir}/%{name}.conf <<EOF
-Alias /munin %{_localstatedir}/lib/munin/html
+ScriptAlias /munin/cgi    %{_datadir}/munin/cgi
+Alias       /munin/static %{_datadir}/munin/static
+Alias       /munin        %{_localstatedir}/lib/munin/html
+
+<Directory %{_datadir}/munin/cgi>
+    Options ExecCGI
+    Require all granted
+</Directory>
+
+<Directory %{_datadir}/munin/static>
+    Require all granted
+</Directory>
 
 <Directory %{_localstatedir}/lib/munin/html>
-    Order deny,allow
-    Allow from all
+    Require all granted
 </Directory>
 EOF
 
 # cron task
 install -d -m 755 %{buildroot}%{_sysconfdir}/cron.d
-install -m 644 dists/redhat/munin.cron.d %{buildroot}%{_sysconfdir}/cron.d/munin
+cat > %{buildroot}%{_sysconfdir}/cron.d/munin <<EOF
+*/5 * * * *     munin /usr/bin/munin-cron
+EOF
 
 # logrotate
 install -d -m 755 %{buildroot}%{_sysconfdir}/logrotate.d
@@ -182,37 +268,14 @@ EOF
 # add changelog to installed documentation files
 install -m 644 ChangeLog %{buildroot}%{_docdir}/%{name}/ChangeLog
 
-%clean
-rm -rf %{buildroot}
-
 %pre
 %_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/false
 
-if [ $1 = 2 ]; then
-    # on upgrade, move data to new location if needed
-    if [ ! -d %{_localstatedir}/lib/%{name}/data ]; then
-        cd %{_localstatedir}/lib/%{name}
-        mkdir data
-        for i in *; do
-            [ $i == plugin-state ] && continue
-            [ $i == data ] && continue
-            mv $i data
-        done
-    fi
-fi
+%post
+systemd-tmpfiles --create %{name}.conf
 
 %postun
 %_postun_userdel %{name}
-
-
-%post master
-%_post_webapp
-
-%postun master
-%_postun_webapp
-
-%pre node
-%_pre_useradd %{name} %{_localstatedir}/lib/%{name} /bin/false
 
 %post node
 if [ $1 = 1 ]; then
@@ -223,17 +286,13 @@ fi
 %preun node
 %_preun_service munin-node
 
-%postun node
-%_postun_userdel %{name}
-
 %files
-%defattr(-, root, root)
 %doc %{_docdir}/%{name}
 %dir %{_datadir}/munin
 %dir %{_sysconfdir}/munin
 %dir %{_localstatedir}/lib/munin
-%attr(-,munin,munin) %{_localstatedir}/run/munin
-%attr(-,munin,munin) %{_localstatedir}/log/munin
+%attr(-,munin,apache) %{_localstatedir}/log/munin
+%{_prefix}/lib/tmpfiles.d/munin.conf
 %{perl_vendorlib}/Munin
 %exclude %{perl_vendorlib}/Munin/Master
 %exclude %{perl_vendorlib}/Munin/Node
@@ -241,49 +300,54 @@ fi
 %exclude %{perl_vendorlib}/Munin/Plugin.pm
 
 %files master
-%defattr(-, root, root)
 %{_bindir}/munin-cron
 %{_bindir}/munin-check
-%{_datadir}/munin/munin-graph
 %{_datadir}/munin/munin-html
 %{_datadir}/munin/munin-limits
 %{_datadir}/munin/munin-update
-%{_datadir}/munin/munin-jmx-plugins.jar
+%{_datadir}/munin/munin-datafile2storable
+%{_datadir}/munin/munin-storable2datafile
 %{_datadir}/munin/cgi
-%{_datadir}/munin/DejaVuSans.ttf
-%{_datadir}/munin/DejaVuSansMono.ttf
 %{perl_vendorlib}/Munin/Master
-%dir %{_sysconfdir}/munin/templates
+%{_datadir}/munin/static
+%{_datadir}/munin/templates
+%{_datadir}/munin/munin-graph
+%{_unitdir}/munin-fcgi-graph.service
+%{_unitdir}/munin-fcgi-html.service
+%dir %{_sysconfdir}/munin/munin-conf.d
 %config(noreplace) %{_webappconfdir}/%{name}.conf
 %config(noreplace) %{_sysconfdir}/munin/munin.conf
-%config(noreplace) %{_sysconfdir}/munin/templates/*
 %config(noreplace) %{_sysconfdir}/cron.d/munin
 %config(noreplace) %{_sysconfdir}/logrotate.d/munin
 %attr(-,munin,munin) %{_localstatedir}/lib/munin/data
+%attr(-,munin,apache) %{_localstatedir}/lib/munin/data/cgi-tmp
 %attr(-,munin,munin) %{_localstatedir}/lib/munin/html
 %{_mandir}/man8/munin.8*
-%{_mandir}/man8/munin-graph.8*
 %{_mandir}/man8/munin-update.8*
 %{_mandir}/man8/munin-limits.8*
 %{_mandir}/man8/munin-html.8*
 %{_mandir}/man8/munin-cron.8*
 %{_mandir}/man8/munin-check.8*
+%{_mandir}/man8/munin-graph.8*
 %{_mandir}/man5/munin.conf.5*
 %{_mandir}/man3/Munin::*
 
 %files node
+%doc %{_docdir}/%{name}
 %dir %{_sysconfdir}/munin/plugins
 %dir %{_sysconfdir}/munin/plugin-conf.d
 %config(noreplace) %{_sysconfdir}/munin/munin-node.conf
 %config(noreplace) %{_sysconfdir}/munin/plugin-conf.d/*
 %config(noreplace) %{_sysconfdir}/logrotate.d/munin-node
-%{_initrddir}/munin-node
+%{_unitdir}/munin-node.service
 %{_bindir}/munindoc
 %{_sbindir}/munin-run
 %{_sbindir}/munin-node
 %{_sbindir}/munin-node-configure
+%{_sbindir}/munin-sched
 %attr(-,munin,munin) %{_localstatedir}/lib/munin/plugin-state
 %{_datadir}/munin/plugins
+%exclude %{_datadir}/munin/plugins/jmx_
 %{perl_vendorlib}/Munin/Node
 %{perl_vendorlib}/Munin/Plugin
 %{perl_vendorlib}/Munin/Plugin.pm
@@ -291,13 +355,135 @@ fi
 %{_mandir}/man1/munin-run.1*
 %{_mandir}/man1/munin-node.1*
 %{_mandir}/man1/munin-node-configure.1*
+%{_mandir}/man1/munin-sched.1*
 %{_mandir}/man5/munin-node.conf.5*
+
+%files java-plugins
+%{_datadir}/munin/munin-jmx-plugins.jar
+%{_datadir}/munin/plugins/jmx_
+
+%files async
+%{_unitdir}/munin-asyncd.service
+%{_datadir}/munin/munin-async
+%{_sbindir}/munin-asyncd
 
 
 %changelog
-* Mon Apr 23 2012 Alexander Khrukin <akhrukin@mandriva.org> 1.4.7-1mdv2012.0
-+ Revision: 792867
-- version update 1.4.7
+
+* Sat Dec 08 2012 guillomovitch <guillomovitch> 2.0.9-1.mga3
++ Revision: 328131
+- new version
+
+* Thu Nov 29 2012 guillomovitch <guillomovitch> 2.0.8-1.mga3
++ Revision: 323102
+- new version
+
+* Thu Nov 22 2012 guillomovitch <guillomovitch> 2.0.7-5.mga3
++ Revision: 321117
+- run systemd-tmpfiles during %%post
+
+* Sun Oct 07 2012 barjac <barjac> 2.0.7-4.mga3
++ Revision: 303236
+- Fix problem with fcgi unit files
+
+* Sat Oct 06 2012 guillomovitch <guillomovitch> 2.0.7-3.mga3
++ Revision: 303070
+- split asynchronous client in a distinct subpackage
+- do not ship duplicated dejavu fonts
+- add additional configuration directory to avoid wanings
+- move munin-asyncd to %%{_sbindir} for FHS compliance
+- ship same default plugin configuration as fedora
+- hardcode rundir path as default
+
+* Fri Oct 05 2012 barjac <barjac> 2.0.7-2.mga3
++ Revision: 302945
+- Fix log directory
+
+* Fri Oct 05 2012 guillomovitch <guillomovitch> 2.0.7-1.mga3
++ Revision: 302870
+- fix master dependencies (#7697)
+- new version
+- no need to add user when installing node, it's already handled by base package
+
+* Mon Sep 03 2012 guillomovitch <guillomovitch> 2.0.6-1.mga3
++ Revision: 287789
+- new version
+- use consistent syntax
+
+* Thu Aug 23 2012 guillomovitch <guillomovitch> 2.0.5-2.mga3
++ Revision: 283349
+- ship java plugins in a distinct subpackage
+- use /run/munin instead of /var/run/munin
+- convert /run/munin to tmpfs
+- ship additional fedora systemd services
+- make webapp configuration file compliant with apache 2.4
+
+* Wed Aug 15 2012 guillomovitch <guillomovitch> 2.0.5-1.mga3
++ Revision: 281425
+- new version
+
+* Tue Aug 07 2012 guillomovitch <guillomovitch> 2.0.4-1.mga3
++ Revision: 279658
+- new version
+
+* Mon Jul 30 2012 guillomovitch <guillomovitch> 2.0.3-1.mga3
++ Revision: 275991
+- new version
+
+* Wed Jul 18 2012 guillomovitch <guillomovitch> 2.0.2-1.mga3
++ Revision: 272240
+- new version
+
+* Fri Jun 29 2012 guillomovitch <guillomovitch> 2.0.1-2.mga3
++ Revision: 264962
+- fix perms of images generation directory
+
+* Tue Jun 26 2012 guillomovitch <guillomovitch> 2.0.1-1.mga3
++ Revision: 263839
+- new version
+
+* Mon Jun 04 2012 guillomovitch <guillomovitch> 2.0.0-1.mga3
++ Revision: 254377
+- 2.0.0 final
+- drop sysinit support
+
+* Mon May 07 2012 guillomovitch <guillomovitch> 2.0-0.rc5.2.mga2
++ Revision: 234858
+- new release candidate
+
+* Sat Apr 28 2012 tmb <tmb> 2.0-0.rc4.2.mga2
++ Revision: 233802
+- Require rpm-helper >= 0.24.8-1 for systemd support
+
+* Sat Apr 07 2012 guillomovitch <guillomovitch> 2.0-0.rc4.1.mga2
++ Revision: 229574
+- new pre-release
+
+* Wed Apr 04 2012 luigiwalser <luigiwalser> 2.0-0.rc2.2.mga2
++ Revision: 228527
+- httpd restart is handled by filetriggers now
+
+* Mon Mar 12 2012 guillomovitch <guillomovitch> 2.0-0.rc2.1.mga2
++ Revision: 222910
+- new pre-release snapshot
+- systemd support
+
+* Mon Aug 29 2011 guillomovitch <guillomovitch> 2.0-0.beta4.1.mga2
++ Revision: 136248
+- suggests perl(CGI::Fast)
+- add missing LSB headers
+- new version
+- spec cleanup
+- drop obsolete upgrade %%post scriptlet
+
+* Thu Jul 14 2011 kharec <kharec> 1.4.6-1.mga2
++ Revision: 124035
+- bugfix release
+
+* Sun Feb 20 2011 dmorgan <dmorgan> 1.4.5-1.mga1
++ Revision: 54636
+- imported package munin
+
 
 * Fri Jul 16 2010 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.5-1mdv2011.0
 + Revision: 554269
@@ -409,7 +595,7 @@ fi
   + Pixel <pixel@mandriva.com>
     - adapt to %%_localstatedir now being /var instead of /var/lib (#22312)
 
-  + Olivier Blin <blino@mandriva.org>
+  + Olivier Blin <oblin@mandriva.com>
     - restore BuildRoot
 
   + Thierry Vignaud <tv@mandriva.org>
@@ -443,4 +629,30 @@ fi
 * Sat May 12 2007 Olivier Thauvin <nanardon@mandriva.org> 1.2.5-6mdv2008.0
 + Revision: 26426
 - fix cgi loacation
+
+
+* Fri Jan 26 2007 Michael Scherer <misc@mandriva.org> 1.2.5-5mdv2007.0
++ Revision: 113693
+- add a forked version of the initscript, easier to add lsb init information etc
+
+* Mon Jan 22 2007 Michael Scherer <misc@mandriva.org> 1.2.5-4mdv2007.1
++ Revision: 112109
+- munin user requires a real directory for the shell, as cron check this
+- restrict ( and in fact autorize ) connection from localhost on web interface
+- it seems there is no service munin, so no need to call the macro
+
+* Sun Jan 21 2007 Olivier Thauvin <nanardon@mandriva.org> 1.2.5-3mdv2007.1
++ Revision: 111202
+- fix path in config file (thanks misc)
+
+* Sun Jan 21 2007 Olivier Thauvin <nanardon@mandriva.org> 1.2.5-2mdv2007.1
++ Revision: 111200
+- fix %%post: remove not need call
+
+* Sat Jan 20 2007 Olivier Thauvin <nanardon@mandriva.org> 1.2.5-1mdv2007.1
++ Revision: 111096
+- build all doc
+- fix www path
+- import from RH/fedora rpm
+- Create munin
 
