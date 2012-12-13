@@ -14,8 +14,8 @@ Source3:    munin-fcgi-html.service
 Source4:    munin-fcgi-graph.service
 Source5:    munin.tmpfiles
 Patch0:     munin-2.0.7-use-system-fonts.patch
-Requires(post):  rpm-helper >= 0.24.8-1
-Requires(preun): rpm-helper >= 0.24.8-1
+Requires(post):  rpm-helper
+Requires(preun): rpm-helper
 BuildRequires: html2text
 BuildRequires: htmldoc
 BuildRequires: java-devel
@@ -54,8 +54,8 @@ Summary: Network-wide graphing framework (node)
 Requires: procps >= 2.0.7
 Requires: sysstat
 Requires: %{name} = %{version}-%{release}
-Requires(post):  rpm-helper >= 0.24.8-1
-Requires(preun): rpm-helper >= 0.24.8-1
+Requires(post):  rpm-helper
+Requires(preun): rpm-helper
 
 %description node
 Munin is a highly flexible and powerful solution used to create graphs of
@@ -320,7 +320,6 @@ fi
 %config(noreplace) %{_sysconfdir}/cron.d/munin
 %config(noreplace) %{_sysconfdir}/logrotate.d/munin
 %attr(-,munin,munin) %{_localstatedir}/lib/munin/data
-%attr(-,munin,apache) %{_localstatedir}/lib/munin/data/cgi-tmp
 %attr(-,munin,munin) %{_localstatedir}/lib/munin/html
 %{_mandir}/man8/munin.8*
 %{_mandir}/man8/munin-update.8*
@@ -333,7 +332,7 @@ fi
 %{_mandir}/man3/Munin::*
 
 %files node
-%doc %{_docdir}/%{name}
+#% doc %{_docdir}/%{name}
 %dir %{_sysconfdir}/munin/plugins
 %dir %{_sysconfdir}/munin/plugin-conf.d
 %config(noreplace) %{_sysconfdir}/munin/munin-node.conf
@@ -366,293 +365,3 @@ fi
 %{_unitdir}/munin-asyncd.service
 %{_datadir}/munin/munin-async
 %{_sbindir}/munin-asyncd
-
-
-%changelog
-
-* Sat Dec 08 2012 guillomovitch <guillomovitch> 2.0.9-1.mga3
-+ Revision: 328131
-- new version
-
-* Thu Nov 29 2012 guillomovitch <guillomovitch> 2.0.8-1.mga3
-+ Revision: 323102
-- new version
-
-* Thu Nov 22 2012 guillomovitch <guillomovitch> 2.0.7-5.mga3
-+ Revision: 321117
-- run systemd-tmpfiles during %%post
-
-* Sun Oct 07 2012 barjac <barjac> 2.0.7-4.mga3
-+ Revision: 303236
-- Fix problem with fcgi unit files
-
-* Sat Oct 06 2012 guillomovitch <guillomovitch> 2.0.7-3.mga3
-+ Revision: 303070
-- split asynchronous client in a distinct subpackage
-- do not ship duplicated dejavu fonts
-- add additional configuration directory to avoid wanings
-- move munin-asyncd to %%{_sbindir} for FHS compliance
-- ship same default plugin configuration as fedora
-- hardcode rundir path as default
-
-* Fri Oct 05 2012 barjac <barjac> 2.0.7-2.mga3
-+ Revision: 302945
-- Fix log directory
-
-* Fri Oct 05 2012 guillomovitch <guillomovitch> 2.0.7-1.mga3
-+ Revision: 302870
-- fix master dependencies (#7697)
-- new version
-- no need to add user when installing node, it's already handled by base package
-
-* Mon Sep 03 2012 guillomovitch <guillomovitch> 2.0.6-1.mga3
-+ Revision: 287789
-- new version
-- use consistent syntax
-
-* Thu Aug 23 2012 guillomovitch <guillomovitch> 2.0.5-2.mga3
-+ Revision: 283349
-- ship java plugins in a distinct subpackage
-- use /run/munin instead of /var/run/munin
-- convert /run/munin to tmpfs
-- ship additional fedora systemd services
-- make webapp configuration file compliant with apache 2.4
-
-* Wed Aug 15 2012 guillomovitch <guillomovitch> 2.0.5-1.mga3
-+ Revision: 281425
-- new version
-
-* Tue Aug 07 2012 guillomovitch <guillomovitch> 2.0.4-1.mga3
-+ Revision: 279658
-- new version
-
-* Mon Jul 30 2012 guillomovitch <guillomovitch> 2.0.3-1.mga3
-+ Revision: 275991
-- new version
-
-* Wed Jul 18 2012 guillomovitch <guillomovitch> 2.0.2-1.mga3
-+ Revision: 272240
-- new version
-
-* Fri Jun 29 2012 guillomovitch <guillomovitch> 2.0.1-2.mga3
-+ Revision: 264962
-- fix perms of images generation directory
-
-* Tue Jun 26 2012 guillomovitch <guillomovitch> 2.0.1-1.mga3
-+ Revision: 263839
-- new version
-
-* Mon Jun 04 2012 guillomovitch <guillomovitch> 2.0.0-1.mga3
-+ Revision: 254377
-- 2.0.0 final
-- drop sysinit support
-
-* Mon May 07 2012 guillomovitch <guillomovitch> 2.0-0.rc5.2.mga2
-+ Revision: 234858
-- new release candidate
-
-* Sat Apr 28 2012 tmb <tmb> 2.0-0.rc4.2.mga2
-+ Revision: 233802
-- Require rpm-helper >= 0.24.8-1 for systemd support
-
-* Sat Apr 07 2012 guillomovitch <guillomovitch> 2.0-0.rc4.1.mga2
-+ Revision: 229574
-- new pre-release
-
-* Wed Apr 04 2012 luigiwalser <luigiwalser> 2.0-0.rc2.2.mga2
-+ Revision: 228527
-- httpd restart is handled by filetriggers now
-
-* Mon Mar 12 2012 guillomovitch <guillomovitch> 2.0-0.rc2.1.mga2
-+ Revision: 222910
-- new pre-release snapshot
-- systemd support
-
-* Mon Aug 29 2011 guillomovitch <guillomovitch> 2.0-0.beta4.1.mga2
-+ Revision: 136248
-- suggests perl(CGI::Fast)
-- add missing LSB headers
-- new version
-- spec cleanup
-- drop obsolete upgrade %%post scriptlet
-
-* Thu Jul 14 2011 kharec <kharec> 1.4.6-1.mga2
-+ Revision: 124035
-- bugfix release
-
-* Sun Feb 20 2011 dmorgan <dmorgan> 1.4.5-1.mga1
-+ Revision: 54636
-- imported package munin
-
-
-* Fri Jul 16 2010 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.5-1mdv2011.0
-+ Revision: 554269
-- update to new version 1.4.5
-
-* Wed Mar 24 2010 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.4-2mdv2010.1
-+ Revision: 527110
-- transfer %%{_localstatedir}/run/munin to shared package, it is needed by the agent also
-
-* Mon Mar 01 2010 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.4-1mdv2010.1
-+ Revision: 513036
-- new version
-- really fix munin-node init script
-
-* Thu Dec 31 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.3-1mdv2010.1
-+ Revision: 484536
-- new version
-- fix data migration from 1.3.x package
-- fix init script (mdv bug #56646)
-
-* Wed Dec 16 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.2-1mdv2010.1
-+ Revision: 479561
-- switch to non-sensitive apache access policy
-- new version
-- reload munin-node after rotating logs
-
-* Fri Dec 04 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.1-1mdv2010.1
-+ Revision: 473474
-- more explicit access rules and access denied error message in apache configuration
-- new version
-
-* Mon Nov 30 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.0-5mdv2010.1
-+ Revision: 472115
-- restrict default access permissions to localhost only, as per new policy
-- fix fw_forwarded_local plugin autoconfiguration
-- fix post-installation scripts, and related dependencies
-- split perl modules between master and node packages, so as to leverage deps
-- drop useless explicit dependency on perl-Net-SNMP
-- munin-node obsoletes munin-plugins-slapd
-
-* Sat Nov 28 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.0-2mdv2010.1
-+ Revision: 470864
-- fix build dependencies
-- 1.4.0 final
-- new version
-
-* Sun Nov 15 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.0-0.alpha2.2mdv2010.1
-+ Revision: 466340
-- new alpha release
-
-* Mon Nov 09 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.0-0.alpha.2mdv2010.1
-+ Revision: 463277
-- only run data move procedure on upgrade
-
-* Sun Nov 08 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.4.0-0.alpha.1mdv2010.1
-+ Revision: 463050
-- use here-in documents for logrotate configuration
-- don't redefine logrotate configuration options uselessly
-- drop all patches, excepted utf8 one
-- only run automatic configuration on initial install, to avoid removed plugins to come back after each update
-- handle data location change when upgrading
-- new version
-- spec cleanup
-- move server components in munin-master package
-- move generated HTML files in FHS-compliant /var/lib/munin/html
-- move server data in /var/lib/munin/data
-- move plugins data outside of server data directory
-- use herein-documents for additional plugins configuration
-- drop redundant dependencies
-
-* Wed Aug 05 2009 Michael Scherer <misc@mandriva.org> 1.3.4-8mdv2010.0
-+ Revision: 410245
-- fix error in the patch for the utf8 fix, see bug 51502 for details
-- correct the license
-
-* Wed Jul 01 2009 Guillaume Rousse <guillomovitch@mandriva.org> 1.3.4-7mdv2010.0
-+ Revision: 391252
-- install manually missing Munin::Plugin::SNMP module
-- keep bash completion in its own package
-
-* Thu Jun 25 2009 Olivier Thauvin <nanardon@mandriva.org> 1.3.4-6mdv2010.0
-+ Revision: 388903
-- #51848: requires fonts-ttf-dejavu
-
-* Mon Jun 08 2009 Olivier Thauvin <nanardon@mandriva.org> 1.3.4-5mdv2010.0
-+ Revision: 384102
-- fix #51502
-
-* Fri Oct 10 2008 Guillaume Rousse <guillomovitch@mandriva.org> 1.3.4-4mdv2009.1
-+ Revision: 291379
-- backportability < 2009.0
-
-* Wed Sep 24 2008 Olivier Thauvin <nanardon@mandriva.org> 1.3.4-3mdv2009.0
-+ Revision: 287773
-- munin-html: use cmp vs <=> operator for string sort
-
-* Tue Jun 17 2008 Guillaume Rousse <guillomovitch@mandriva.org> 1.3.4-2mdv2009.0
-+ Revision: 223662
-- bash completion
-
-  + Michael Scherer <misc@mandriva.org>
-    - use lowercase for message, asked by guillomovitch
-    - requires network on boot, asked by guillomovitch
-
-* Sun Jun 08 2008 Olivier Thauvin <nanardon@mandriva.org> 1.3.4-1mdv2009.0
-+ Revision: 216916
-- 1.3.4
-
-  + Pixel <pixel@mandriva.com>
-    - adapt to %%_localstatedir now being /var instead of /var/lib (#22312)
-
-  + Olivier Blin <oblin@mandriva.com>
-    - restore BuildRoot
-
-  + Thierry Vignaud <tv@mandriva.org>
-    - kill re-definition of %%buildroot on Pixel's request
-
-* Fri Oct 12 2007 Guillaume Rousse <guillomovitch@mandriva.org> 1.3.3-4mdv2008.1
-+ Revision: 97351
-- various file list cleanup
-- no need for %%doc tags for man pages
-- make munin-node package own plugins directory, otherwise it get loosely created with various perms, breaking usage if too much restricted
-
-  + Olivier Thauvin <nanardon@mandriva.org>
-    - provide a config for fw* plugins
-    - path4: fix cgi-graph lock
-    - simplify specfile
-
-* Mon May 28 2007 Olivier Thauvin <nanardon@mandriva.org> 1.3.3-3mdv2008.0
-+ Revision: 32010
-- one more plugins fix
-- patch3: plugins fix
-
-* Mon May 28 2007 Olivier Thauvin <nanardon@mandriva.org> 1.3.3-2mdv2008.0
-+ Revision: 31972
-- move Munin::Plugin into munin-node, where it is required
-- munin-node require perl-Net-SNMP >= 5.2.0 for some plugins
-
-* Mon May 28 2007 Olivier Thauvin <nanardon@mandriva.org> 1.3.3-1mdv2008.0
-+ Revision: 31959
-- 1.3.3
-
-* Sat May 12 2007 Olivier Thauvin <nanardon@mandriva.org> 1.2.5-6mdv2008.0
-+ Revision: 26426
-- fix cgi loacation
-
-
-* Fri Jan 26 2007 Michael Scherer <misc@mandriva.org> 1.2.5-5mdv2007.0
-+ Revision: 113693
-- add a forked version of the initscript, easier to add lsb init information etc
-
-* Mon Jan 22 2007 Michael Scherer <misc@mandriva.org> 1.2.5-4mdv2007.1
-+ Revision: 112109
-- munin user requires a real directory for the shell, as cron check this
-- restrict ( and in fact autorize ) connection from localhost on web interface
-- it seems there is no service munin, so no need to call the macro
-
-* Sun Jan 21 2007 Olivier Thauvin <nanardon@mandriva.org> 1.2.5-3mdv2007.1
-+ Revision: 111202
-- fix path in config file (thanks misc)
-
-* Sun Jan 21 2007 Olivier Thauvin <nanardon@mandriva.org> 1.2.5-2mdv2007.1
-+ Revision: 111200
-- fix %%post: remove not need call
-
-* Sat Jan 20 2007 Olivier Thauvin <nanardon@mandriva.org> 1.2.5-1mdv2007.1
-+ Revision: 111096
-- build all doc
-- fix www path
-- import from RH/fedora rpm
-- Create munin
-
