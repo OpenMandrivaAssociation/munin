@@ -1,8 +1,6 @@
-%define _requires_exceptions perl(\\(Munin::Master::LimitsOld\\|CGI::Fast\\|DBD::Pg\\))
-
 Name:      munin
-Version:   2.0.9
-Release:   %mkrel 1
+Version:   2.0.18
+Release:   1
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
@@ -13,7 +11,7 @@ Source2:    munin-asyncd.service
 Source3:    munin-fcgi-html.service
 Source4:    munin-fcgi-graph.service
 Source5:    munin.tmpfiles
-Patch0:     munin-2.0.7-use-system-fonts.patch
+Patch0:     munin-2.0.18-use-system-fonts.patch
 Requires(post):  rpm-helper
 Requires(preun): rpm-helper
 BuildRequires: html2text

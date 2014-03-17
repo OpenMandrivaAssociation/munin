@@ -1,2 +1,4 @@
-sources:
+removed_sources:
   munin-2.0.9.tar.gz: 4145231e5f65689d2e17692f1b133729bae1d539
+sources:
+  munin-2.0.18.tar.gz: 79beba7703e19b65ca74b94de1cd6dcf1f809d67
