@@ -1,6 +1,6 @@
 Name:      munin
 Version:   2.0.18
-Release:   1
+Release:   4
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
@@ -14,10 +14,12 @@ Source5:    munin.tmpfiles
 Patch0:     munin-2.0.18-use-system-fonts.patch
 Requires(post):  rpm-helper
 Requires(preun): rpm-helper
+Requires:	apache-base
 BuildRequires: html2text
 BuildRequires: htmldoc
 BuildRequires: java-devel
 BuildRequires: perl(Module::Build)
+BuildRequires: perl(JSON::PP)
 BuildArch: noarch
 
 %description
@@ -75,7 +77,7 @@ SNMP or similar technology.
 
 %package java-plugins
 Group:      Monitoring
-Summary:    java-plugins for munin
+Summary:    Java-plugins for munin
 Requires:   %{name}-node = %{version}-%{release}
 Requires:   jpackage-utils
 
@@ -117,7 +119,6 @@ make \
     build
 
 %install
-rm -rf %{buildroot}
 
 # ugly hack
 cp common/blib/lib/Munin/Common/Defaults.pm Defaults.pm
