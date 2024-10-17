@@ -4,7 +4,7 @@ Release:   5
 Summary:   Network-wide graphing framework (grapher/gatherer)
 License:   GPLv2
 Group:     Monitoring
-URL:       http://munin.projects.linpro.no/
+URL:       https://munin.projects.linpro.no/
 Source0:   http://download.sourceforge.net/sourceforge/munin/%{name}-%{version}.tar.gz
 Source1:    munin-node.service
 Source2:    munin-asyncd.service
